@@ -33,7 +33,7 @@
       </a>
     </template>
     <template v-else>
-      <a href="https://github.com/johnsoncodehk/volar" target="_blank">Volar</a>
+      <a href="https://github.com/johnsoncodehk/volar" target="_blank" title="fdsasdfe">Volar</a>
     </template>
   </p>
   <p v-if="useTsPlugin">
