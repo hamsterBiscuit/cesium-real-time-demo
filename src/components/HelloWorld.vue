@@ -29,7 +29,7 @@
         href="https://marketplace.visualstudio.com/items?itemName=znck.vue-language-features"
         target="_blank"
       >
-        Vue DX
+        Vue DX some
       </a>
     </template>
     <template v-else>
