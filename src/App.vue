@@ -1,27 +1,41 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png" />
-  <HelloWorld msg="Hello Vue 3 + TypeScript + Vite" />
+  <div id="cesiumRef"></div>
 </template>
 
-<script lang="ts">
-  import { defineComponent } from 'vue'
-  import HelloWorld from './components/HelloWorld.vue'
+<script lang="ts" setup>
+  import { onMounted, nextTick } from 'vue'
+  import * as Cesium from 'cesium'
+  import { initCesium, clickCesium } from './cesium'
 
-  export default defineComponent({
-    name: 'App',
-    components: {
-      HelloWorld,
-    },
+  const viewer = initCesium()
+  onMounted(() => {
+    if (!viewer.value) return
+    clickCesium(viewer)
+    const j20 = viewer.value.entities.add({
+      name: 'j20',
+      position: Cesium.Cartesian3.fromDegrees(
+        126.3252296364248,
+        51.856054618724656,
+        10000
+      ),
+      model: {
+        uri: 'public/model/j20.gltf',
+        minimumPixelSize: 128,
+      },
+    })
+
+    viewer.value.camera.flyTo({
+      destination: Cesium.Cartesian3.fromDegrees(
+        126.3252296364248,
+        51.856054618724656,
+        100000
+      ),
+    })
   })
 </script>
 
 <style>
-  #app {
-    font-family: Avenir, Helvetica, Arial, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-align: center;
-    color: #2c3e50;
-    margin-top: 60px;
+  #cesiumRef {
+    height: 100vh;
   }
 </style>
