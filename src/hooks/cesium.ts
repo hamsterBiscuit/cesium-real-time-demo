@@ -1,10 +1,10 @@
 import { ref, onMounted } from 'vue'
 import type { Ref } from 'vue'
 import * as Cesium from 'cesium'
-import '../node_modules/cesium/Build/Cesium/Widgets/widgets.css'
+import '../../node_modules/cesium/Build/Cesium/Widgets/widgets.css'
 
 // The URL on your server where CesiumJS's static files are hosted.
-;(window as any).CESIUM_BASE_URL = '../node_modules/cesium/Build/Cesium'
+;(window as any).CESIUM_BASE_URL = '../../node_modules/cesium/Build/Cesium'
 
 export const initCesium = (): Ref<Cesium.Viewer> | Ref<undefined> => {
   const viewer = ref<Cesium.Viewer>()
@@ -31,7 +31,10 @@ export const initCesium = (): Ref<Cesium.Viewer> | Ref<undefined> => {
   return viewer
 }
 
-export const clickCesium = (viewer: Ref<Cesium.Viewer>): any => {
+// 设置时间
+
+// 左键点击事件
+export const clickCesium = (viewer: Ref<Cesium.Viewer>): void => {
   viewer.value.screenSpaceEventHandler.setInputAction((movement) => {
     const pickedLabel = viewer.value.scene.pick(movement.position)
     const cartesian = viewer.value.camera.pickEllipsoid(

@@ -3,11 +3,16 @@
 </template>
 
 <script lang="ts" setup>
-  import { onMounted, nextTick } from 'vue'
+  import { onMounted, watch } from 'vue'
   import * as Cesium from 'cesium'
-  import { initCesium, clickCesium } from './cesium'
+  import { initCesium, clickCesium } from './hooks/cesium'
+  import useLoadData from './hooks/loadData'
 
   const viewer = initCesium()
+  const data = useLoadData()
+  watch(data, (value) => {
+
+  })
   onMounted(() => {
     if (!viewer.value) return
     clickCesium(viewer)
@@ -28,7 +33,7 @@
         // uri: 'public/model/ZP.gltf', // 帐篷
         // uri: 'public/model/KJ2000.glb', // 巡航机
         // uri: 'public/model/missile.glb', // 导弹
-        uri: 'public/model/J15.glb', // 导弹
+        uri: 'public/models/J15.glb', // 导弹
         minimumPixelSize: 128,
       },
     })
