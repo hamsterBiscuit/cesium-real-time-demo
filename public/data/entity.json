@@ -1,0 +1,975 @@
+{
+  "mobileList": [
+    {
+      "id": "ZHS",
+      "position": [
+        108.993380,
+        34.269964,
+        413.00000
+      ],
+      "objectType": "sky",
+      "url": "static/models/gltf/ZP.gltf",
+      "image": "static/img/entity/Red.png",
+      "scale": 1.0,
+      "maximumScale": 256,
+      "imageScale": 1.0,
+      "effectList": [
+        {
+          "id": "test_effect_dynnamicLineEffect_11",
+          "type": "dynnamicLineEffect",
+          "destID": "test11",
+          "positions": [
+            [
+              102,
+              39,
+              10000
+            ],
+            [
+              105,
+              39,
+              10000
+            ],
+            [
+              105,
+              45,
+              10000
+            ]
+          ],
+          "color": "rgb(89,249,255)",
+          "alpha": 0.8
+        },
+        {
+          "id": "test_effect_dynnamicLineEffect_12",
+          "type": "dynnamicLineEffect",
+          "destID": "test12",
+          "positions": [
+            [
+              102,
+              39,
+              10000
+            ],
+            [
+              105,
+              39,
+              10000
+            ],
+            [
+              105,
+              45,
+              10000
+            ]
+          ],
+          "color": "rgb(89,249,255)",
+          "alpha": 0.8
+        },
+        {
+          "id": "test_effect_dynnamicLineEffect_13",
+          "type": "dynnamicLineEffect",
+          "destID": "test13",
+          "positions": [
+            [
+              102,
+              39,
+              10000
+            ],
+            [
+              105,
+              39,
+              10000
+            ],
+            [
+              105,
+              45,
+              10000
+            ]
+          ],
+          "color": "rgb(89,249,255)",
+          "alpha": 0.8
+        }
+      ]
+    },
+    {
+      "id": "radar01",
+      "position": [
+        108.908987,
+        33.649950,
+        1232.00000
+      ],
+      "objectType": "land",
+      "url": "static/models/gltf/czld.gltf",
+      "image": "static/img/entity/DetectStation_Red.png",
+      "scale": 1.0,
+      "maximumScale": 256,
+      "imageScale": 0.15,
+      "effectList": [
+        {
+          "id": "test_effect_parabolaRadar_1",
+          "type": "parabolaRadar",
+          "show": true,
+          "parabolaHeight": 30000,
+          "parabolaRadius": 130000,
+          "verticalLineCount": 50,
+          "horizontalLineCount": 20,
+          "scanningRate": -183.6734693877551,
+          "scannerColor": "rgba(255,255,0,0.25)",
+          "color": [
+            "rgba(255,0,0,0.01)",
+            "rgba(255,69,0,0.2)"
+          ],
+          "outlineColor": [
+            "rgba(0,255,0,0.01)",
+            "rgba(255,69,0,0.0.3)"
+          ],
+          "offset": [
+            -2.0,
+            0.0,
+            5.0
+          ]
+        },
+        {
+          "id": "test_effect_aimEffect_1",
+          "type": "AimEffect",
+          "destID": "BlueMissile01",
+          "color": "rgba(255,0,0,0.1)",
+          "lineColor": "rgba(255,255,255,1.0)",
+          "visible": true
+        },
+        {
+          "id": "test_effect_dynnamicLineEffect_1",
+          "type": "dynnamicLineEffect",
+          "destID": "ZHS",
+          "positions": [
+            [
+              102,
+              39,
+              10000
+            ],
+            [
+              105,
+              39,
+              10000
+            ],
+            [
+              105,
+              45,
+              10000
+            ]
+          ],
+          "color": "rgb(89,249,255)",
+          "alpha": 0.8
+        },
+        {
+          "id": "test_effect_dynnamicLineEffect_2",
+          "type": "dynnamicLineEffect",
+          "destID": "testY_R",
+          "positions": [
+            [
+              102,
+              39,
+              10000
+            ],
+            [
+              105,
+              39,
+              10000
+            ],
+            [
+              105,
+              45,
+              10000
+            ]
+          ],
+          "color": "rgb(89,249,255)",
+          "alpha": 0.8
+        },
+        {
+          "id": "test_effect_dynnamicLineEffect_11",
+          "type": "dynnamicLineEffect",
+          "destID": "test11",
+          "positions": [
+            [
+              102,
+              39,
+              10000
+            ],
+            [
+              105,
+              39,
+              10000
+            ],
+            [
+              105,
+              45,
+              10000
+            ]
+          ],
+          "color": "rgb(89,249,255)",
+          "alpha": 0.8
+        },
+        {
+          "id": "test_effect_dynnamicLineEffect_12",
+          "type": "dynnamicLineEffect",
+          "destID": "test12",
+          "positions": [
+            [
+              102,
+              39,
+              10000
+            ],
+            [
+              105,
+              39,
+              10000
+            ],
+            [
+              105,
+              45,
+              10000
+            ]
+          ],
+          "color": "rgb(89,249,255)",
+          "alpha": 0.8
+        },
+        {
+          "id": "test_effect_dynnamicLineEffect_13",
+          "type": "dynnamicLineEffect",
+          "destID": "test13",
+          "positions": [
+            [
+              102,
+              39,
+              10000
+            ],
+            [
+              105,
+              39,
+              10000
+            ],
+            [
+              105,
+              45,
+              10000
+            ]
+          ],
+          "color": "rgb(89,249,255)",
+          "alpha": 0.8
+        }
+      ]
+    },
+    {
+      "id": "radar02",
+      "position": [
+        107.860193,
+        34.668616,
+        1085.00000
+      ],
+      "objectType": "sky",
+      "url": "static/models/gltf/czld.gltf",
+      "image": "static/img/entity/DetectStation_Red.png",
+      "scale": 1.0,
+      "maximumScale": 256,
+      "modeloffsetHeading": 90,
+      "imageScale": 0.15,
+      "effectList": [
+        {
+          "id": "test_effect_parabolaRadar_1",
+          "type": "parabolaRadar",
+          "show": true,
+          "parabolaHeight": 30000,
+          "parabolaRadius": 130000,
+          "verticalLineCount": 50,
+          "horizontalLineCount": 20,
+          "scanningRate": -183.6734693877551,
+          "scannerColor": "rgba(255,255,0,0.25)",
+          "color": [
+            "rgba(255,0,0,0.01)",
+            "rgba(255,69,0,0.2)"
+          ],
+          "outlineColor": [
+            "rgba(0,255,0,0.01)",
+            "rgba(255,69,0,0.0.3)"
+          ],
+          "offset": [
+            -2.0,
+            0.0,
+            5.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "testY_R",
+      "position": [
+        108.122911,
+        34.326737,
+        511.0
+      ],
+      "path": "static/json/entityPath/RedY.json",
+      "url": "static/models/glb/KJ2000.glb",
+      "image": "static/img/entity/Awacs_Red.png",
+      "scale": 1.0,
+      "maximumScale": 256,
+      "imageScale": 0.15,
+      "modeloffsetHeading": 90,
+      "effectList": [
+        {
+          "id": "test_effect_ringRadar_1",
+          "type": "ringRadar",
+          "show": true,
+          "radarHeight": 10000,
+          "sphericalRadius": 66000,
+          "bottomRadius": 60000,
+          "sphericalSurfaceLineCount": 8,
+          "planeSurfaceLineCount": 50,
+          "scannerColor": "rgba(255,255,0,0.2)",
+          "color": "rgba(255,0,0,0.1)",
+          "outlineColor": "rgba(255,0,0,0.3)"
+        },
+        {
+          "id": "test_effect_dynnamicLineEffect_1",
+          "type": "dynnamicLineEffect",
+          "destID": "test01",
+          "positions": [
+            [
+              102,
+              39,
+              10000
+            ],
+            [
+              105,
+              39,
+              10000
+            ],
+            [
+              105,
+              45,
+              10000
+            ]
+          ],
+          "color": "rgb(89,249,255)",
+          "alpha": 0.8
+        },
+        {
+          "id": "test_effect_dynnamicLineEffect_2",
+          "type": "dynnamicLineEffect",
+          "destID": "test02",
+          "positions": [
+            [
+              102,
+              39,
+              10000
+            ],
+            [
+              105,
+              39,
+              10000
+            ],
+            [
+              105,
+              45,
+              10000
+            ]
+          ],
+          "color": "rgb(89,249,255)",
+          "alpha": 0.8
+        },
+        {
+          "id": "test_effect_dynnamicLineEffect_3",
+          "type": "dynnamicLineEffect",
+          "destID": "test03",
+          "positions": [
+            [
+              102,
+              39,
+              10000
+            ],
+            [
+              105,
+              39,
+              10000
+            ],
+            [
+              105,
+              45,
+              10000
+            ]
+          ],
+          "color": "rgb(89,249,255)",
+          "alpha": 0.8
+        }
+      ]
+    },
+    {
+      "id": "test01",
+      "position": [
+        107.722223,
+        34.348747,
+        652.0
+      ],
+      "path": "static/json/entityPath/Red01.json",
+      "url": "static/models/gltf/j20.gltf",
+      "image": "static/img/entity/fighter_Red.png",
+      "scale": 1,
+      "maximumScale": 512,
+      "modeloffsetHeading": 90,
+      "imageScale": 0.15,
+      "effectList": [
+        {
+          "id": "test_effect_ribbon_1",
+          "type": "Ribbon",
+          "maxAlpha": 1.0,
+          "minAlpha": 0.1,
+          "width": 100,
+          "maxVerticeNum": 300,
+          "offset": [
+            -10,
+            0,
+            0
+          ],
+          "color": "rgb(255,0,0)"
+        },
+        {
+          "id": "test_effect_scanRadar_1",
+          "type": "scanRadar",
+          "radius": 2000.0,
+          "color": "rgba(0,255,0,0.0)"
+        },
+        {
+          "id": "test_effect_aimEffect_1",
+          "type": "AimEffect",
+          "destID": "test01_B",
+          "color": "rgba(255,0,0,0.1)",
+          "lineColor": "rgba(255,255,255,1.0)",
+          "visible": true
+        }
+      ]
+    },
+    {
+      "id": "RedMissile01",
+      "position": [
+        107.842368,
+        33.699979,
+        2397.396652
+      ],
+      "path": "static/json/entityPath/RedMissile01.json",
+      "url": "static/models/glb/missile.glb",
+      "image": "static/img/entity/Missile_Red.png",
+      "scale": 1,
+      "show": false,
+      "maximumScale": 128,
+      "modeloffsetHeading": 90,
+      "imageScale": 0.6
+    },
+    {
+      "id": "test02",
+      "position": [
+        107.798921,
+        34.265524,
+        550.0
+      ],
+      "path": "static/json/entityPath/Red02.json",
+      "url": "static/models/gltf/j20.gltf",
+      "image": "static/img/entity/fighter_Red.png",
+      "scale": 1,
+      "maximumScale": 512,
+      "modeloffsetHeading": 90,
+      "imageScale": 0.15,
+      "effectList": [
+        {
+          "id": "test_effect_ribbon_1",
+          "type": "Ribbon",
+          "maxAlpha": 1.0,
+          "minAlpha": 0.1,
+          "width": 100,
+          "maxVerticeNum": 300,
+          "offset": [
+            -10,
+            0,
+            0
+          ],
+          "color": "rgb(255,0,0)"
+        },
+        {
+          "id": "test_effect_aimEffect_1",
+          "type": "AimEffect",
+          "destID": "test02_B",
+          "color": "rgba(255,0,0,0.1)",
+          "lineColor": "rgba(255,255,255,1.0)",
+          "visible": true
+        }
+      ]
+    },
+    {
+      "id": "RedMissile02",
+      "position": [
+        107.91915575004603,
+        33.88952825672149,
+        1744.3201214868134
+      ],
+      "path": "static/json/entityPath/RedMissile02.json",
+      "url": "static/models/glb/missile.glb",
+      "image": "static/img/entity/Missile_Red.png",
+      "scale": 1,
+      "show": false,
+      "maximumScale": 128,
+      "modeloffsetHeading": 90,
+      "imageScale": 0.6
+    },
+    {
+      "id": "test03",
+      "position": [
+        107.873775,
+        34.357924,
+        539.098372
+      ],
+      "path": "static/json/entityPath/Red03.json",
+      "url": "static/models/gltf/j20.gltf",
+      "image": "static/img/entity/fighter_Red.png",
+      "scale": 1,
+      "maximumScale": 512,
+      "modeloffsetHeading": 90,
+      "imageScale": 0.15,
+      "effectList": [
+        {
+          "id": "test_effect_ribbon_1",
+          "type": "Ribbon",
+          "maxAlpha": 1.0,
+          "minAlpha": 0.1,
+          "width": 100,
+          "maxVerticeNum": 300,
+          "offset": [
+            -10,
+            0,
+            0
+          ],
+          "color": "rgb(255,0,0)"
+        },
+        {
+          "id": "test_effect_scanRadar_1",
+          "type": "scanRadar",
+          "radius": 2000.0,
+          "color": "rgba(0,255,0,0.0)"
+        },
+        {
+          "id": "test_effect_aimEffect_1",
+          "type": "AimEffect",
+          "destID": "test00",
+          "color": "rgba(255,0,0,0.1)",
+          "lineColor": "rgba(255,255,255,1.0)",
+          "visible": false
+        }
+      ]
+    },
+    {
+      "id": "test11",
+      "position": [
+        108.987270,
+        34.067664,
+        570.0
+      ],
+      "path": "static/json/entityPath/Red11.json",
+      "url": "static/models/gltf/j20.gltf",
+      "image": "static/img/entity/fighter_Red.png",
+      "scale": 1.0,
+      "maximumScale": 512,
+      "imageScale": 0.15,
+      "modeloffsetHeading": 90,
+      "effectList": [
+        {
+          "id": "test_effect_ribbon_1",
+          "type": "Ribbon",
+          "maxAlpha": 1.0,
+          "minAlpha": 0.1,
+          "width": 100,
+          "maxVerticeNum": 300,
+          "offset": [
+            -10,
+            0,
+            0
+          ],
+          "color": "rgb(255,0,0)"
+        },
+        {
+          "id": "test_effect_scanRadar_1",
+          "type": "scanRadar",
+          "radius": 2000.0,
+          "color": "rgba(0,255,0,0.0)"
+        },
+        {
+          "id": "test_effect_aimEffect_1",
+          "type": "AimEffect",
+          "destID": "test03_B",
+          "color": "rgba(255,0,0,0.1)",
+          "lineColor": "rgba(255,255,255,1.0)",
+          "visible": true
+        }
+      ]
+    },
+    {
+      "id": "RedMissile11",
+      "position": [
+        108.83093201760903,
+        33.90310755892023,
+        1343.369354207161
+      ],
+      "path": "static/json/entityPath/RedMissile11.json",
+      "url": "static/models/glb/missile.glb",
+      "image": "static/img/entity/Missile_Red.png",
+      "scale": 1,
+      "show": false,
+      "maximumScale": 128,
+      "modeloffsetHeading": 90,
+      "imageScale": 0.6
+    },
+    {
+      "id": "RedMissile03",
+      "position": [
+        108.15890229003162,
+        33.73081694953842,
+        1672.5094091525893
+      ],
+      "path": "static/json/entityPath/RedMissile03.json",
+      "url": "static/models/glb/missile.glb",
+      "image": "static/img/entity/Missile_Red.png",
+      "scale": 1,
+      "show": false,
+      "maximumScale": 128,
+      "modeloffsetHeading": 90,
+      "imageScale": 0.6
+    },
+    {
+      "id": "test12",
+      "position": [
+        109.097528,
+        34.109500,
+        554
+      ],
+      "path": "static/json/entityPath/Red12.json",
+      "url": "static/models/gltf/j20.gltf",
+      "image": "static/img/entity/fighter_Red.png",
+      "scale": 1.0,
+      "maximumScale": 512,
+      "imageScale": 0.15,
+      "modeloffsetHeading": 90,
+      "effectList": [
+        {
+          "id": "test_effect_ribbon_1",
+          "type": "Ribbon",
+          "maxAlpha": 1.0,
+          "minAlpha": 0.1,
+          "width": 100,
+          "maxVerticeNum": 300,
+          "offset": [
+            -10,
+            0,
+            0
+          ],
+          "color": "rgb(255,0,0)"
+        },
+        {
+          "id": "test_effect_scanRadar_1",
+          "type": "scanRadar",
+          "radius": 2000.0,
+          "color": "rgba(0,255,0,0.0)"
+        },
+        {
+          "id": "test_effect_aimEffect_1",
+          "type": "AimEffect",
+          "destID": "test00",
+          "color": "rgba(255,0,0,0.1)",
+          "lineColor": "rgba(255,255,255,1.0)",
+          "visible": false
+        }
+      ]
+    },
+    {
+      "id": "test13",
+      "position": [
+        108.949322,
+        34.130466,
+        450.0
+      ],
+      "path": "static/json/entityPath/Red13.json",
+      "url": "static/models/gltf/j20.gltf",
+      "image": "static/img/entity/fighter_Red.png",
+      "scale": 1.0,
+      "maximumScale": 512,
+      "imageScale": 0.15,
+      "modeloffsetHeading": 90,
+      "effectList": [
+        {
+          "id": "test_effect_ribbon_1",
+          "type": "Ribbon",
+          "maxAlpha": 1.0,
+          "minAlpha": 0.1,
+          "width": 100,
+          "maxVerticeNum": 300,
+          "offset": [
+            -10,
+            0,
+            0
+          ],
+          "color": "rgb(255,0,0)"
+        },
+        {
+          "id": "test_effect_scanRadar_1",
+          "type": "scanRadar",
+          "radius": 2000.0,
+          "color": "rgba(0,255,0,0.0)"
+        },
+        {
+          "id": "test_effect_aimEffect_1",
+          "type": "AimEffect",
+          "destID": "test03_B",
+          "color": "rgba(255,0,0,0.1)",
+          "lineColor": "rgba(255,255,255,1.0)",
+          "visible": false
+        }
+      ]
+    },
+    {
+      "id": "radar01_B",
+      "position": [
+        107.366050,
+        33.294220,
+        909.000000
+      ],
+      "type": 1,
+      "url": "static/models/gltf/DMLD.gltf",
+      "image": "static/img/entity/DetectStation_blue.png",
+      "scale": 0.3,
+      "maximumScale": 256,
+      "modeloffsetHeading": 90,
+      "imageScale": 0.15,
+      "effectList": [
+        {
+          "id": "test_effect_parabolaRadar_1",
+          "type": "parabolaRadar",
+          "show": true,
+          "parabolaHeight": 30000,
+          "parabolaRadius": 100000,
+          "verticalLineCount": 50,
+          "horizontalLineCount": 20,
+          "scanningRate": 272.7272727272727,
+          "scannerColor": "rgba(255,255,0,0.25)",
+          "color": [
+            "rgba(0,0,255,0.05)",
+            "rgba(0,69,255,0.1)"
+          ],
+          "outlineColor": [
+            "rgba(0,255,0,0.01)",
+            "rgba(255,69,0,0.05)"
+          ],
+          "offset": [
+            -2.0,
+            0.0,
+            50.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "testY_B",
+      "position": [
+        107.222932,
+        33.394693,
+        1327.797604
+      ],
+      "path": "static/json/entityPath/BlueY.json",
+      "url": "static/models/glb/KJ2000.glb",
+      "image": "static/img/entity/Awacs_Blue.png",
+      "scale": 1.0,
+      "maximumScale": 512,
+      "imageScale": 0.15,
+      "modeloffsetHeading": 90,
+      "effectList": [
+        {
+          "id": "test_effect_ringRadar_1",
+          "type": "ringRadar",
+          "show": true,
+          "radarHeight": 10000,
+          "sphericalRadius": 66000,
+          "bottomRadius": 60000,
+          "sphericalSurfaceLineCount": 8,
+          "planeSurfaceLineCount": 50,
+          "scannerColor": "rgba(255,255,0,0.2)",
+          "color": "rgba(0,55,255,0.1)",
+          "outlineColor": "rgba(0,55,255,0.2)"
+        }
+      ]
+    },
+    {
+      "id": "test01_B",
+      "position": [
+        107.226675,
+        33.510467,
+        1991.213016
+      ],
+      "path": "static/json/entityPath/Blue01.json",
+      "url": "static/models/glb/J15.glb",
+      "image": "static/img/entity/fighter_Blue.png",
+      "scale": 1.0,
+      "maximumScale": 512,
+      "imageScale": 0.15,
+      "modeloffsetHeading": 90,
+      "effectList": [
+        {
+          "id": "test_effect_ribbon_1",
+          "type": "Ribbon",
+          "maxAlpha": 1.0,
+          "minAlpha": 0.1,
+          "width": 100,
+          "maxVerticeNum": 300,
+          "offset": [
+            -10,
+            0,
+            0
+          ],
+          "color": "rgb(0,0,255)"
+        },
+        {
+          "id": "test_effect_scanRadar_1",
+          "type": "scanRadar",
+          "radius": 2000.0,
+          "color": "rgba(0,255,0,0.0)"
+        },
+        {
+          "id": "test_effect_aimEffect_1",
+          "type": "AimEffect",
+          "destID": "test00",
+          "color": "rgba(255,0,0,0.1)",
+          "lineColor": "rgba(255,255,255,1.0)",
+          "visible": false
+        },
+        {
+          "id": "test_effect_particle_1",
+          "type": "particle",
+          "visible": false
+        }
+      ]
+    },
+    {
+      "id": "BlueMissile01",
+      "position": [
+        107.892128416173,
+        33.46183064309373,
+        2685.767193337006
+      ],
+      "path": "static/json/entityPath/BlueMissile01.json",
+      "url": "static/models/glb/missile.glb",
+      "image": "static/img/entity/Missile_Blue1.png",
+      "scale": 1,
+      "show": false,
+      "maximumScale": 128,
+      "modeloffsetHeading": 90,
+      "imageScale": 0.6,
+      "effectList": [
+        {
+          "id": "test_effect_particle_1",
+          "type": "particle",
+          "visible": false
+        }
+      ]
+    },
+    {
+      "id": "test02_B",
+      "position": [
+        107.326675,
+        33.474036,
+        1597.167746
+      ],
+      "path": "static/json/entityPath/Blue02.json",
+      "url": "static/models/glb/J15.glb",
+      "image": "static/img/entity/fighter_Blue.png",
+      "scale": 1.0,
+      "maximumScale": 512,
+      "imageScale": 0.15,
+      "modeloffsetHeading": 90,
+      "effectList": [
+        {
+          "id": "test_effect_ribbon_1",
+          "type": "Ribbon",
+          "maxAlpha": 1.0,
+          "minAlpha": 0.1,
+          "width": 100,
+          "maxVerticeNum": 300,
+          "offset": [
+            -10,
+            0,
+            0
+          ],
+          "color": "rgb(0,0,255)"
+        },
+        {
+          "id": "test_effect_scanRadar_1",
+          "type": "scanRadar",
+          "radius": 2000.0,
+          "color": "rgba(0,255,0,0.0)"
+        },
+        {
+          "id": "test_effect_aimEffect_1",
+          "type": "AimEffect",
+          "destID": "test12",
+          "color": "rgba(0,0,255,0.1)",
+          "lineColor": "rgba(255,255,255,1.0)",
+          "visible": true
+        },
+        {
+          "id": "test_effect_particle_1",
+          "type": "particle",
+          "visible": false
+        }
+      ]
+    },
+    {
+      "id": "test03_B",
+      "position": [
+        107.395474,
+        33.398186,
+        1047.051483
+      ],
+      "path": "static/json/entityPath/Blue03.json",
+      "url": "static/models/glb/J15.glb",
+      "image": "static/img/entity/fighter_Blue.png",
+      "scale": 1.0,
+      "maximumScale": 512,
+      "imageScale": 0.15,
+      "modeloffsetHeading": 90,
+      "effectList": [
+        {
+          "id": "test_effect_ribbon_1",
+          "type": "Ribbon",
+          "maxAlpha": 1.0,
+          "minAlpha": 0.1,
+          "width": 100,
+          "maxVerticeNum": 300,
+          "offset": [
+            -10,
+            0,
+            0
+          ],
+          "color": "rgb(0,0,255)"
+        },
+        {
+          "id": "test_effect_scanRadar_1",
+          "type": "scanRadar",
+          "radius": 2000.0,
+          "color": "rgba(0,255,0,0.0)"
+        },
+        {
+          "id": "test_effect_aimEffect_1",
+          "type": "AimEffect",
+          "destID": "test00",
+          "color": "rgba(255,0,0,0.1)",
+          "lineColor": "rgba(255,255,255,1.0)",
+          "visible": false
+        },
+        {
+          "id": "test_effect_particle_1",
+          "type": "particle",
+          "visible": false
+        }
+      ]
+    }
+  ]
+}
