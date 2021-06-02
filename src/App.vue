@@ -5,13 +5,30 @@
 <script lang="ts" setup>
   import { onMounted, watch } from 'vue'
   import * as Cesium from 'cesium'
-  import { initCesium, clickCesium } from './hooks/cesium'
-  import useLoadData from './hooks/loadData'
+  import {
+    initCesium,
+    clickCesium,
+    setStartAndEndTime,
+    setCurrentTime,
+    renderEntity,
+  } from './hooks/cesium'
+  import { useLoadSceneDeply, useLoadEntity } from './hooks/loadData'
 
   const viewer = initCesium()
-  const data = useLoadData()
+  const data = useLoadSceneDeply()
   watch(data, (value) => {
+    if (!viewer.value) return
+    setStartAndEndTime(viewer.value, data.value.startTime, data.value.endTime)
+    setCurrentTime(viewer.value, value.startTime)
+  })
 
+  const entityData = useLoadEntity()
+  watch(entityData, (value) => {
+    if (!viewer.value) return
+    value.mobileList.forEach((item) => {
+      renderEntity(viewer.value, item)
+    })
+    // viewer.value
   })
   onMounted(() => {
     if (!viewer.value) return
@@ -33,18 +50,18 @@
         // uri: 'public/model/ZP.gltf', // 帐篷
         // uri: 'public/model/KJ2000.glb', // 巡航机
         // uri: 'public/model/missile.glb', // 导弹
-        uri: 'public/models/J15.glb', // 导弹
-        minimumPixelSize: 128,
+        // uri: 'public/models/J15.glb', // 导弹
+        // minimumPixelSize: 128,
       },
     })
 
-    viewer.value.camera.flyTo({
-      destination: Cesium.Cartesian3.fromDegrees(
-        126.3252296364248,
-        51.856054618724656,
-        100000
-      ),
-    })
+    // viewer.value.camera.flyTo({
+    //   destination: Cesium.Cartesian3.fromDegrees(
+    //     126.3252296364248,
+    //     51.856054618724656,
+    //     100000
+    //   ),
+    // })
   })
 </script>
 

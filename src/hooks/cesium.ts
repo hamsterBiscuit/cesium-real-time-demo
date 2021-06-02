@@ -1,6 +1,7 @@
 import { ref, onMounted } from 'vue'
 import type { Ref } from 'vue'
 import * as Cesium from 'cesium'
+import { MobileList } from '../hooks/interface'
 import '../../node_modules/cesium/Build/Cesium/Widgets/widgets.css'
 
 // The URL on your server where CesiumJS's static files are hosted.
@@ -32,6 +33,19 @@ export const initCesium = (): Ref<Cesium.Viewer> | Ref<undefined> => {
 }
 
 // 设置时间
+export const setStartAndEndTime = (
+  viewer: Cesium.Viewer,
+  start: string,
+  end: string
+): void => {
+  viewer.clock.startTime = Cesium.JulianDate.fromDate(new Date(start)).clone()
+  viewer.clock.startTime = Cesium.JulianDate.fromDate(new Date(end)).clone()
+}
+
+// 设置当前时间
+export const setCurrentTime = (viewer: Cesium.Viewer, time: string): void => {
+  viewer.clock.currentTime = Cesium.JulianDate.fromDate(new Date(time)).clone()
+}
 
 // 左键点击事件
 export const clickCesium = (viewer: Ref<Cesium.Viewer>): void => {
@@ -51,4 +65,23 @@ export const clickCesium = (viewer: Ref<Cesium.Viewer>): void => {
     const latitudeString = Cesium.Math.toDegrees(cartographic.latitude)
     console.log([longitudeString, latitudeString])
   }, Cesium.ScreenSpaceEventType.LEFT_CLICK)
+}
+
+// render Entity
+export const renderEntity = (
+  viewer: Cesium.Viewer,
+  current: MobileList
+): void => {
+  viewer.entities.add({
+    name: current.id,
+    position: Cesium.Cartesian3.fromDegrees(
+      current.position[0],
+      current.position[1],
+      current.position[2]
+    ),
+    model: {
+      uri: current.url,
+      minimumPixelSize: 128,
+    },
+  })
 }

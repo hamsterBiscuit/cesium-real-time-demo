@@ -68,3 +68,53 @@ export interface SceneDeploy {
   eventCommands: EventCommand[]
   addCommands: AddCommand[]
 }
+
+export interface EffectList {
+  id: string
+  type: string
+  destID: string
+  positions: number[][]
+  color: any
+  alpha: number
+  show?: boolean
+  parabolaHeight?: number
+  parabolaRadius?: number
+  verticalLineCount?: number
+  horizontalLineCount?: number
+  scanningRate?: number
+  scannerColor: string
+  outlineColor: any
+  offset: number[]
+  lineColor: string
+  visible?: boolean
+  radarHeight?: number
+  sphericalRadius?: number
+  bottomRadius?: number
+  sphericalSurfaceLineCount?: number
+  planeSurfaceLineCount?: number
+  maxAlpha?: number
+  minAlpha?: number
+  width?: number
+  maxVerticeNum?: number
+  radius?: number
+}
+
+export interface MobileList {
+  id: string
+  position: number[]
+  objectType: string
+  url: string
+  image: string
+  scale: number
+  maximumScale: number
+  imageScale: number
+  effectList: EffectList[]
+  modeloffsetHeading?: number
+  path: string
+  show?: boolean
+  type?: number
+}
+
+export interface Entity {
+  mobileList: MobileList[]
+}
