@@ -1,8 +1,10 @@
 import { ref, onMounted } from 'vue'
 import type { Ref } from 'vue'
 import * as Cesium from 'cesium'
-import { MobileList } from '../hooks/interface'
 import '../../node_modules/cesium/Build/Cesium/Widgets/widgets.css'
+
+import { MobileList, PathRes } from './interface'
+import { loadData } from './loadData'
 
 // The URL on your server where CesiumJS's static files are hosted.
 ;(window as any).CESIUM_BASE_URL = '../../node_modules/cesium/Build/Cesium'
@@ -39,7 +41,7 @@ export const setStartAndEndTime = (
   end: string
 ): void => {
   viewer.clock.startTime = Cesium.JulianDate.fromDate(new Date(start)).clone()
-  viewer.clock.startTime = Cesium.JulianDate.fromDate(new Date(end)).clone()
+  viewer.clock.stopTime = Cesium.JulianDate.fromDate(new Date(end)).clone()
 }
 
 // 设置当前时间
@@ -72,7 +74,8 @@ export const renderEntity = (
   viewer: Cesium.Viewer,
   current: MobileList
 ): void => {
-  viewer.entities.add({
+  const entity = viewer.entities.add({
+    id: current.id,
     name: current.id,
     position: Cesium.Cartesian3.fromDegrees(
       current.position[0],
@@ -81,7 +84,27 @@ export const renderEntity = (
     ),
     model: {
       uri: current.url,
+      scale: current.scale,
+      maximumScale: current.maximumScale,
       minimumPixelSize: 128,
+      // color: Cesium.Color.RED,
     },
   })
+  if (current.path) {
+    loadData<PathRes>(current.path).then((res) => {
+      const property = new Cesium.SampledPositionProperty()
+      res.path.forEach((i) => {
+        const time = Cesium.JulianDate.fromDate(new Date(i.time))
+        const position = Cesium.Cartesian3.fromDegrees(
+          i.position[0],
+          i.position[1],
+          i.position[2]
+        )
+        property.addSample(time, position)
+      })
+      // entity.addProperty
+      entity.position = property
+      entity.orientation = new Cesium.VelocityOrientationProperty(property)
+    })
+  }
 }

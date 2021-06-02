@@ -18,17 +18,31 @@
   const data = useLoadSceneDeply()
   watch(data, (value) => {
     if (!viewer.value) return
-    setStartAndEndTime(viewer.value, data.value.startTime, data.value.endTime)
+    if (!value) return
+    setStartAndEndTime(viewer.value, value.startTime, value.endTime)
     setCurrentTime(viewer.value, value.startTime)
   })
 
   const entityData = useLoadEntity()
   watch(entityData, (value) => {
     if (!viewer.value) return
+    if (!value) return
     value.mobileList.forEach((item) => {
       renderEntity(viewer.value, item)
     })
-    // viewer.value
+    viewer.value.camera.flyTo({
+      destination: Cesium.Cartesian3.fromDegrees(
+        107.86403621404294,
+        31.93440949179516,
+        256158.7686010595
+      ),
+      orientation: {
+        heading: Cesium.Math.toRadians(357.0625550729448),
+        pitch: Cesium.Math.toRadians(-53.70659864617062),
+        roll: Cesium.Math.toRadians(0.003695432978150054),
+      },
+    })
+    viewer.value.clock.canAnimate = true
   })
   onMounted(() => {
     if (!viewer.value) return

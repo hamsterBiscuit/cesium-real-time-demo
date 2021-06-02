@@ -118,3 +118,12 @@ export interface MobileList {
 export interface Entity {
   mobileList: MobileList[]
 }
+
+export interface Path {
+  time: string
+  position: number[]
+}
+
+export interface PathRes {
+  path: Path[]
+}
