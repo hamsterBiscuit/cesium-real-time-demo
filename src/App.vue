@@ -4,7 +4,7 @@
 
 <script lang="ts" setup>
   import { onMounted, watch } from 'vue'
-  import * as Cesium from 'cesium'
+  // import * as Cesium from 'cesium'
   import {
     initCesium,
     clickCesium,
@@ -13,6 +13,8 @@
     renderEntity,
   } from './hooks/cesium'
   import { useLoadSceneDeply, useLoadEntity } from './hooks/loadData'
+
+  const Cesium = (window as any).Cesium
 
   const viewer = initCesium()
   const data = useLoadSceneDeply()
