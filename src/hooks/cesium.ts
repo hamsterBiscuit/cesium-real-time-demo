@@ -228,7 +228,6 @@ export const renderEntity = (
 
       // 航迹
       if (!current.id.includes('Missile')) {
-        console.log(1)
         entity.availability = new Cesium.TimeIntervalCollection([
           new Cesium.TimeInterval({
             start: Cesium.JulianDate.fromDate(new Date(res.path[0].time)),
@@ -247,6 +246,52 @@ export const renderEntity = (
           }),
           width: 10,
         }
+      }
+
+      // 雷达
+      if (
+        current.effectList?.[0]?.id.includes('Radar') &&
+        current.effectList[0]
+      ) {
+        console.log('aaa================')
+        const materialData = current.effectList[0]
+
+        const r = new Cesium.HeadingPitchRoll(
+          Cesium.Math.toRadians(0),
+          Cesium.Math.toRadians(0),
+          Cesium.Math.toRadians(0)
+        )
+        const l = Cesium.Cartesian3.fromDegrees(
+          current.position[0],
+          current.position[1],
+          current.position[2]
+        )
+        ;(viewer.entities as any).add({
+          position: property,
+          orientation: Cesium.Transforms.headingPitchRollQuaternion(l, r),
+          rectangularSensor: new Cesium.RectangularSensorGraphics({
+            radius: materialData.bottomRadius,
+            xHalfAngle: Cesium.Math.toRadians(90),
+            yHalfAngle: Cesium.Math.toRadians(90),
+            material: Cesium.Color.fromCssColorString(
+              typeof materialData.color === 'string'
+                ? materialData.color
+                : materialData.color[1]
+            ),
+            lineColor: Cesium.Color.fromCssColorString(
+              typeof materialData.color === 'string'
+                ? materialData.color
+                : materialData.color[0]
+            ),
+            showScanPlane: true,
+            scanPlaneColor: Cesium.Color.fromCssColorString(
+              materialData.scannerColor
+            ),
+            // scanPlaneMode: 'horizontal',
+            scanPlaneRate: 3,
+            showThroughEllipsoid: !1,
+          }),
+        })
       }
 
       nextTick(() => {
@@ -312,8 +357,16 @@ export const renderEntity = (
         radius: materialData.parabolaRadius,
         xHalfAngle: Cesium.Math.toRadians(90),
         yHalfAngle: Cesium.Math.toRadians(90),
-        material: Cesium.Color.fromCssColorString(materialData.color[0]),
-        lineColor: Cesium.Color.fromCssColorString(materialData.color[0]),
+        material: Cesium.Color.fromCssColorString(
+          typeof materialData.color === 'string'
+            ? materialData.color
+            : materialData.color[1]
+        ),
+        lineColor: Cesium.Color.fromCssColorString(
+          typeof materialData.color === 'string'
+            ? materialData.color
+            : materialData.color[0]
+        ),
         showScanPlane: true,
         scanPlaneColor: Cesium.Color.fromCssColorString(
           materialData.scannerColor
