@@ -23,6 +23,30 @@
     if (!value) return
     setStartAndEndTime(viewer.value, value.startTime, value.endTime)
     setCurrentTime(viewer.value, value.startTime)
+    // 事件
+    // 控制 entity 掩藏显示
+    setInterval(() => {
+      value.eventCommands.forEach((item) => {
+        item.method?.forEach((i) => {
+          if (
+            i.parameters?.strEffectID?.includes('aim') &&
+            typeof i.parameters.visible === 'boolean'
+          ) {
+            const time = Cesium.JulianDate.fromDate(new Date(item.currentTime))
+            const currentTime = viewer.value.clock.currentTime.clone()
+            // 对比时间
+            if (Cesium.JulianDate.equalsEpsilon(time, currentTime, 1)) {
+              const entity = viewer.value.entities.getById(
+                i.parameters?.strEffectID + i.parameters?.strEntityID
+              )
+              if (entity) {
+                entity.show = i.parameters?.visible
+              }
+            }
+          }
+        })
+      })
+    }, 250)
   })
 
   const entityData = useLoadEntity()
@@ -44,32 +68,33 @@
         roll: Cesium.Math.toRadians(0.003695432978150054),
       },
     })
+
     viewer.value.clock.canAnimate = true
   })
   onMounted(() => {
     if (!viewer.value) return
     clickCesium(viewer)
-    const j20 = viewer.value.entities.add({
-      name: 'j20',
-      position: Cesium.Cartesian3.fromDegrees(
-        126.3252296364248,
-        51.856054618724656,
-        10000
-      ),
-      model: {
-        // uri: 'public/model/j20.gltf', // 歼20
-        // uri: 'public/model/BD1H.gltf', // 卫星1
-        // uri: 'public/model/czld.gltf', // 雷达车
-        // uri: 'public/model/DMLD.gltf', // 地面雷达
-        // uri: 'public/model/GALILEO.gltf', // 卫星2
-        // uri: 'public/model/GPS.gltf', // GPS
-        // uri: 'public/model/ZP.gltf', // 帐篷
-        // uri: 'public/model/KJ2000.glb', // 巡航机
-        // uri: 'public/model/missile.glb', // 导弹
-        // uri: 'public/models/J15.glb', // 导弹
-        // minimumPixelSize: 128,
-      },
-    })
+    // const j20 = viewer.value.entities.add({
+    //   name: 'j20',
+    //   position: Cesium.Cartesian3.fromDegrees(
+    //     126.3252296364248,
+    //     51.856054618724656,
+    //     10000
+    //   ),
+    //   model: {
+    // uri: 'public/model/j20.gltf', // 歼20
+    // uri: 'public/model/BD1H.gltf', // 卫星1
+    // uri: 'public/model/czld.gltf', // 雷达车
+    // uri: 'public/model/DMLD.gltf', // 地面雷达
+    // uri: 'public/model/GALILEO.gltf', // 卫星2
+    // uri: 'public/model/GPS.gltf', // GPS
+    // uri: 'public/model/ZP.gltf', // 帐篷
+    // uri: 'public/model/KJ2000.glb', // 巡航机
+    // uri: 'public/model/missile.glb', // 导弹
+    // uri: 'public/models/J15.glb', // 导弹
+    // minimumPixelSize: 128,
+    //   },
+    // })
 
     // viewer.value.camera.flyTo({
     //   destination: Cesium.Cartesian3.fromDegrees(

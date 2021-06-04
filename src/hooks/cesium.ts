@@ -1,9 +1,9 @@
-import { ref, onMounted } from 'vue'
+import { ref, unref, onMounted, nextTick } from 'vue'
 import type { Ref } from 'vue'
-import type * as CesiumEs from 'cesium'
+import * as CesiumEs from 'cesium'
 // import '../../node_modules/cesium/Build/Cesium/Widgets/widgets.css'
 
-import { MobileList, PathRes } from './interface'
+import { MobileList, PathRes, EffectList } from './interface'
 import { loadData } from './loadData'
 
 const Cesium = (window as any).Cesium
@@ -61,7 +61,7 @@ export const initCesium = (): Ref<CesiumEs.Viewer> | Ref<undefined> => {
     ;(viewer.value.cesiumWidget.creditContainer as HTMLElement).style.display =
       'none'
 
-    viewer.value.clock.multiplier = 1
+    viewer.value.clock.multiplier = 4
   })
 
   return viewer
@@ -102,19 +102,102 @@ export const clickCesium = (viewer: Ref<CesiumEs.Viewer>): void => {
   }, Cesium.ScreenSpaceEventType.LEFT_CLICK)
 }
 
+// 绘制火控雷达
+export const renderAimEffect = (
+  viewer: CesiumEs.Viewer,
+  current: EffectList,
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+  position: any,
+  currentId: string
+): void => {
+  function getPosition(time: any) {
+    const destEntity = viewer.entities.getById(current.destID)
+    let currentPosition
+    let destPosition
+    if (position.getValue) {
+      currentPosition = position.getValue(time)
+    } else {
+      currentPosition = position
+    }
+    if (destEntity?.position?.getValue) {
+      destPosition = destEntity.position.getValue(time)
+    } else {
+      destPosition = destEntity?.position
+    }
+    return { currentPosition, destPosition }
+  }
+  // 画线
+  viewer.entities.add({
+    id: current.id + currentId,
+    name: current.id,
+    show: false,
+    polyline: {
+      positions: new Cesium.CallbackProperty((time: any) => {
+        const destEntity = viewer.entities.getById(current.destID)
+        const { currentPosition, destPosition } = getPosition(time)
+        if (destPosition && currentPosition) {
+          return [currentPosition, destPosition]
+        } else {
+          return []
+        }
+      }, false),
+      width: 20.0,
+      material: new Cesium.PolylineGlowMaterialProperty({
+        color: Cesium.Color.RED.withAlpha(1),
+        // glowPower: 0.25,
+      }),
+    },
+    // orientation: new Cesium.CallbackProperty((e) => {
+    //   let m = CesiumEs.getModelMatrix(this.originPosition, this.targetPosition)
+    //   let hpr = this.getHeadingPitchRoll(m)
+    //   hpr.pitch = hpr.pitch + 3.14 / 2 + 3.14
+    //   return Cesium.Transforms.headingPitchRollQuaternion(
+    //     this.originPosition,
+    //     hpr
+    //   )
+    // }, false),
+    // position: new Cesium.CallbackProperty((e) => {
+    //   const { currentPosition, destPosition } = getPosition(e)
+    //   if (destPosition && currentPosition) {
+    //     return Cesium.Cartesian3.midpoint(
+    //       currentPosition,
+    //       destPosition,
+    //       new Cesium.Cartesian3()
+    //     )
+    //   } else {
+    //     return 0
+    //   }
+    // }, false),
+    // cylinder: {
+    //   length: new Cesium.CallbackProperty((e: any) => {
+    //     const { currentPosition, destPosition } = getPosition(e)
+    //     if (destPosition && currentPosition) {
+    //       return Cesium.Cartesian3.distance(currentPosition, destPosition)
+    //     } else {
+    //       return 0
+    //     }
+    //   }, false),
+    // topRadius: 15.0,
+    // bottomRadius: 0.0,
+    // material: Cesium.Color.RED.withAlpha(0.4),
+    // },
+  })
+}
+
 // render Entity
 export const renderEntity = (
   viewer: CesiumEs.Viewer,
   current: MobileList
 ): void => {
+  const position = Cesium.Cartesian3.fromDegrees(
+    current.position[0],
+    current.position[1],
+    current.position[2]
+  )
   const entity = viewer.entities.add({
     id: current.id,
     name: current.id,
-    position: Cesium.Cartesian3.fromDegrees(
-      current.position[0],
-      current.position[1],
-      current.position[2]
-    ),
+    position: position,
     model: {
       uri: current.url,
       scale: current.scale,
@@ -138,12 +221,61 @@ export const renderEntity = (
       })
       // entity.addProperty
       entity.position = property
-      entity.orientation = new Cesium.VelocityOrientationProperty(property)
+      entity.orientation = new Cesium.VelocityOrientationProperty(
+        property,
+        Cesium.Ellipsoid.UNIT_SPHERE
+      )
+
+      // 航迹
+      if (!current.id.includes('Missile')) {
+        console.log(1)
+        entity.availability = new Cesium.TimeIntervalCollection([
+          new Cesium.TimeInterval({
+            start: Cesium.JulianDate.fromDate(new Date(res.path[0].time)),
+            stop: Cesium.JulianDate.fromDate(
+              new Date(res.path[res.path.length - 1].time)
+            ),
+          }),
+        ])
+        entity.path = {
+          resolution: 1,
+          leadTime: 0,
+          material: new Cesium.PolylineGlowMaterialProperty({
+            glowPower: 0.3,
+            taperPower: 0.3,
+            color: Cesium.Color.LIGHTBLUE.withAlpha(0.5),
+          }),
+          width: 10,
+        }
+      }
+
+      nextTick(() => {
+        if (current.effectList) {
+          current.effectList.forEach((item) => {
+            if (item.type === 'AimEffect') {
+              renderAimEffect(viewer, item, property, current.id)
+            }
+          })
+        }
+      })
+    })
+  } else {
+    nextTick(() => {
+      if (current.effectList) {
+        current.effectList.forEach((item) => {
+          if (item.type === 'AimEffect') {
+            renderAimEffect(viewer, item, position, current.id)
+          }
+        })
+      }
     })
   }
 
   // 地面雷达
-  if (current.type === 1 && current.effectList[0]) {
+  if (
+    (current.type === 1 || current.id.includes('radar')) &&
+    current.effectList[0]
+  ) {
     const materialData = current.effectList[0]
     // viewer.entities.add({
     //   id: materialData.id,
@@ -177,7 +309,7 @@ export const renderEntity = (
       position: l,
       orientation: Cesium.Transforms.headingPitchRollQuaternion(l, r),
       rectangularSensor: new Cesium.RectangularSensorGraphics({
-        radius: 100000,
+        radius: materialData.parabolaRadius,
         xHalfAngle: Cesium.Math.toRadians(90),
         yHalfAngle: Cesium.Math.toRadians(90),
         material: Cesium.Color.fromCssColorString(materialData.color[0]),
@@ -186,7 +318,6 @@ export const renderEntity = (
         scanPlaneColor: Cesium.Color.fromCssColorString(
           materialData.scannerColor
         ),
-        // scanPlaneMode: '111',
         // scanPlaneMode: 'horizontal',
         scanPlaneRate: 3,
         showThroughEllipsoid: !1,

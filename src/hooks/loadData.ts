@@ -15,9 +15,9 @@ export function useLoadData<T>(url: string): Ref<T | undefined> {
 }
 
 export const useLoadSceneDeply = (): Ref<SceneDeploy | undefined> => {
-  return useLoadData('public/json/sceneDeploy.json')
+  return useLoadData('/json/sceneDeploy.json')
 }
 
 export const useLoadEntity = (): Ref<Entity | undefined> => {
-  return useLoadData('public/json/entity.json')
+  return useLoadData('/json/entity.json')
 }
