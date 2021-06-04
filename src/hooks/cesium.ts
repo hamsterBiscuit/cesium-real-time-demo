@@ -1,4 +1,4 @@
-import { ref, unref, onMounted, nextTick } from 'vue'
+import { ref, onMounted, nextTick } from 'vue'
 import type { Ref } from 'vue'
 import * as CesiumEs from 'cesium'
 // import '../../node_modules/cesium/Build/Cesium/Widgets/widgets.css'
@@ -52,7 +52,7 @@ export const initCesium = (): Ref<CesiumEs.Viewer> | Ref<undefined> => {
       selectionIndicator: false,
       timeline: false, //"时间线"开关
       navigationHelpButton: false, //“帮助按钮”开关
-      shouldAnimate: true, // Enable animations
+      shouldAnimate: false, // Enable animations
       // terrainProvider: Cesium.createWorldTerrain(),
       baseLayerPicker: false,
       terrainProvider: terrainLayer,

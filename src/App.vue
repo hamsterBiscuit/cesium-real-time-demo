@@ -1,10 +1,17 @@
 <template>
   <div id="cesiumRef"></div>
+  <div class="controll">
+    <ElButton type="primary" size="small" @click="play">开始</ElButton>
+    <ElButton type="primary" size="small" @click="pause">暂停</ElButton>
+    <ElButton type="primary" size="small" @click="restart">重置</ElButton>
+    <ElButton type="primary" size="small" @click="fastForward">快进5s</ElButton>
+    <ElButton type="primary" size="small" @click="back">后退5s</ElButton>
+  </div>
 </template>
 
 <script lang="ts" setup>
   import { onMounted, watch } from 'vue'
-  // import * as Cesium from 'cesium'
+  import { ElButton } from 'element-plus'
   import {
     initCesium,
     clickCesium,
@@ -68,8 +75,6 @@
         roll: Cesium.Math.toRadians(0.003695432978150054),
       },
     })
-
-    viewer.value.clock.canAnimate = true
   })
   onMounted(() => {
     if (!viewer.value) return
@@ -104,10 +109,52 @@
     //   ),
     // })
   })
+
+  const play = () => {
+    if (!viewer.value) return
+    viewer.value.clock.shouldAnimate = true
+  }
+  const pause = () => {
+    if (!viewer.value) return
+    viewer.value.clock.shouldAnimate = false
+  }
+  const restart = () => {
+    if (!viewer.value || !data.value) return
+    setCurrentTime(viewer.value, data.value.startTime)
+    viewer.value.clock.shouldAnimate = false
+  }
+  const fastForward = () => {
+    if (!viewer.value) return
+    const current = viewer.value.clock.currentTime.clone()
+    const result = new Cesium.JulianDate()
+    Cesium.JulianDate.addSeconds(current, 5, result)
+    console.log(result)
+    setCurrentTime(viewer.value, result)
+  }
+  const back = () => {
+    if (!viewer.value) return
+    const current = viewer.value.clock.currentTime.clone()
+    const result = new Cesium.JulianDate()
+    Cesium.JulianDate.addSeconds(current, -5, result)
+    console.log(result)
+    setCurrentTime(viewer.value, result)
+  }
 </script>
 
 <style>
   #cesiumRef {
     height: 100vh;
+  }
+
+  .controll {
+    position: absolute;
+    left: 10rem;
+    right: 10rem;
+    bottom: 10rem;
+    height: 3rem;
+    line-height: 3rem;
+    background-color: rgba(0, 0, 0, 0.6);
+    padding: 0 0.25rem;
+    text-align: center;
   }
 </style>
