@@ -9,7 +9,7 @@
     "lint:style": "stylelint src/**/*.{css,scss,vue}"
   },
   "dependencies": {
-    "cesium": "^1.81.0",
+    "cesium": "^1.82.1",
     "element-plus": "^1.0.2-beta.46",
     "vue": "^3.0.5"
   },

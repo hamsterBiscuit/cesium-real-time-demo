@@ -1,6 +1,7 @@
 import { ref, onMounted, nextTick } from 'vue'
 import type { Ref } from 'vue'
 import * as CesiumEs from 'cesium'
+import { calcPoints } from '../assets/radar.js'
 // import '../../node_modules/cesium/Build/Cesium/Widgets/widgets.css'
 
 import { MobileList, PathRes, EffectList } from './interface'
@@ -61,7 +62,7 @@ export const initCesium = (): Ref<CesiumEs.Viewer> | Ref<undefined> => {
     ;(viewer.value.cesiumWidget.creditContainer as HTMLElement).style.display =
       'none'
 
-    viewer.value.clock.multiplier = 4
+    viewer.value.clock.multiplier = 1
   })
 
   return viewer
@@ -266,32 +267,32 @@ export const renderEntity = (
           current.position[1],
           current.position[2]
         )
-        ;(viewer.entities as any).add({
-          position: property,
-          orientation: Cesium.Transforms.headingPitchRollQuaternion(l, r),
-          rectangularSensor: new Cesium.RectangularSensorGraphics({
-            radius: materialData.bottomRadius,
-            xHalfAngle: Cesium.Math.toRadians(90),
-            yHalfAngle: Cesium.Math.toRadians(90),
-            material: Cesium.Color.fromCssColorString(
-              typeof materialData.color === 'string'
-                ? materialData.color
-                : materialData.color[1]
-            ),
-            lineColor: Cesium.Color.fromCssColorString(
-              typeof materialData.color === 'string'
-                ? materialData.color
-                : materialData.color[0]
-            ),
-            showScanPlane: true,
-            scanPlaneColor: Cesium.Color.fromCssColorString(
-              materialData.scannerColor
-            ),
-            // scanPlaneMode: 'horizontal',
-            scanPlaneRate: 3,
-            showThroughEllipsoid: !1,
-          }),
-        })
+        // ;(viewer.entities as any).add({
+        //   position: property,
+        //   orientation: Cesium.Transforms.headingPitchRollQuaternion(l, r),
+        //   rectangularSensor: new Cesium.RectangularSensorGraphics({
+        //     radius: materialData.bottomRadius,
+        //     xHalfAngle: Cesium.Math.toRadians(90),
+        //     yHalfAngle: Cesium.Math.toRadians(90),
+        //     material: Cesium.Color.fromCssColorString(
+        //       typeof materialData.color === 'string'
+        //         ? materialData.color
+        //         : materialData.color[1]
+        //     ),
+        //     lineColor: Cesium.Color.fromCssColorString(
+        //       typeof materialData.color === 'string'
+        //         ? materialData.color
+        //         : materialData.color[0]
+        //     ),
+        //     showScanPlane: true,
+        //     scanPlaneColor: Cesium.Color.fromCssColorString(
+        //       materialData.scannerColor
+        //     ),
+        //     // scanPlaneMode: 'horizontal',
+        //     scanPlaneRate: 3,
+        //     showThroughEllipsoid: !1,
+        //   }),
+        // })
       }
 
       nextTick(() => {
@@ -350,31 +351,155 @@ export const renderEntity = (
       current.position[1],
       current.position[2]
     )
-    ;(viewer.entities as any).add({
-      position: l,
-      orientation: Cesium.Transforms.headingPitchRollQuaternion(l, r),
-      rectangularSensor: new Cesium.RectangularSensorGraphics({
-        radius: materialData.parabolaRadius,
-        xHalfAngle: Cesium.Math.toRadians(90),
-        yHalfAngle: Cesium.Math.toRadians(90),
-        material: Cesium.Color.fromCssColorString(
-          typeof materialData.color === 'string'
-            ? materialData.color
-            : materialData.color[1]
+    // ;(viewer.entities as any).add({
+    //   position: l,
+    //   // orientation: Cesium.Transforms.headingPitchRollQuaternion(l, r),
+    //   // rectangularSensor: new Cesium.RectangularSensorGraphics({
+    //   //   radius: new Cesium.CallbackProperty(() => materialData.parabolaRadius),
+    //   //   slice: 120,
+    //   //   xHalfAngle: Cesium.Math.toRadians(90),
+    //   //   yHalfAngle: Cesium.Math.toRadians(90),
+    //   //   material: Cesium.Color.fromCssColorString(
+    //   //     typeof materialData.color === 'string'
+    //   //       ? materialData.color
+    //   //       : materialData.color[1]
+    //   //   ),
+    //   //   lineColor: Cesium.Color.fromCssColorString(
+    //   //     typeof materialData.color === 'string'
+    //   //       ? materialData.color
+    //   //       : materialData.color[0]
+    //   //   ),
+    //   //   showScanPlane: true,
+    //   //   scanPlaneColor: Cesium.Color.fromCssColorString(
+    //   //     materialData.scannerColor
+    //   //   ),
+    //   //   // scanPlaneMode: 'horizontal',
+    //   //   scanPlaneMode: new Cesium.CallbackProperty(() => {
+    //   //     return 'horizontal'
+    //   //   }),
+    //   //   // scanPlaneRate: 3,
+    //   //   // showThroughEllipsoid: !1,
+    //   // }),
+    //   rectangularSensor: new Cesium.RectangularSensorGraphics({
+    //     //gaze: targetEntity,
+    //     radius: new Cesium.CallbackProperty(function () {
+    //       return 10000
+    //     }, false),
+    //     slice: 120, //切分程度
+    //     xHalfAngle: new Cesium.CallbackProperty(function () {
+    //       return Cesium.Math.toRadians(90)
+    //     }, false), //左右夹角
+    //     yHalfAngle: new Cesium.CallbackProperty(function () {
+    //       return Cesium.Math.toRadians(90)
+    //     }, false), //上下夹角
+    //     lineColor: new Cesium.CallbackProperty(function () {
+    //       return Cesium.Color.fromCssColorString('red')
+    //     }, false), //线颜色
+    //     material: new Cesium.Color(0.0, 1.0, 1.0, 0.4), //统一材质
+    //     showScanPlane: new Cesium.CallbackProperty(function () {
+    //       return true
+    //     }, false), //显示扫描面
+    //     scanPlaneColor: new Cesium.CallbackProperty(function () {
+    //       return Cesium.Color.fromCssColorString(self.scanPlaneColor)
+    //     }, false), //扫描面颜色
+    //     scanPlaneMode: new Cesium.CallbackProperty(function () {
+    //       return self.scanPlaneMode ? 'vertical' : 'horizontal'
+    //     }, false), //垂直扫描模式
+    //     scanPlaneRate: new Cesium.CallbackProperty(function () {
+    //       return self.scanPlaneRate
+    //     }, false), //扫描速率
+    //     showIntersection: true, //是否显示扫描与地球的线
+    //     showThroughEllipsoid: false, //是否穿过地球显示
+    //   }),
+    // })
+
+    let heading = 0
+
+    let positionArr = calcPoints(
+      current.position[0],
+      current.position[1],
+      materialData.parabolaRadius,
+      heading
+    )
+
+    const entity = viewer.entities.add({
+      wall: {
+        positions: new Cesium.CallbackProperty(() => {
+          return Cesium.Cartesian3.fromDegreesArrayHeights(positionArr)
+        }, false),
+        material: Cesium.Color.AQUAMARINE.withAlpha(0.5),
+      },
+    })
+
+    viewer.entities.add({
+      position: Cesium.Cartesian3.fromDegrees(
+        current.position[0],
+        current.position[1],
+        current.position[2]
+      ),
+      ellipsoid: {
+        radii: new Cesium.Cartesian3(
+          materialData.parabolaRadius,
+          materialData.parabolaRadius,
+          materialData.parabolaRadius
         ),
-        lineColor: Cesium.Color.fromCssColorString(
-          typeof materialData.color === 'string'
-            ? materialData.color
-            : materialData.color[0]
-        ),
-        showScanPlane: true,
-        scanPlaneColor: Cesium.Color.fromCssColorString(
-          materialData.scannerColor
-        ),
-        // scanPlaneMode: 'horizontal',
-        scanPlaneRate: 3,
-        showThroughEllipsoid: !1,
-      }),
+        maximumCone: Cesium.Math.toRadians(90),
+        material: Cesium.Color.AQUAMARINE.withAlpha(0.3),
+        outline: true,
+        outlineColor: Cesium.Color.AQUAMARINE.withAlpha(0.5),
+        outlineWidth: 1,
+      },
+    })
+
+    // viewer.zoomTo(viewer.entities)
+
+    // 执行动画效果
+    viewer.clock.onTick.addEventListener(() => {
+      heading += 0.1
+      positionArr = calcPoints(
+        current.position[0],
+        current.position[1],
+        materialData.parabolaRadius,
+        heading
+      )
     })
   }
+}
+
+export const firstCamera = (viewer: CesiumEs.Viewer, entityId) => {
+  viewer.scene.postUpdate.addEventListener((__, time) => {
+    entityList.forEach((entity, index) => {
+      const orientation = entity.orientation.getValue(time)
+      const headingPitchRoll = new Cesium.HeadingPitchRoll()
+      Cesium.HeadingPitchRoll.fromQuaternion(orientation, headingPitchRoll)
+      const position = entity.position.getValue(time)
+      const degrees = cartesianToDegrees(position)
+      entity.label.text = `${
+        entity.name
+      }\nlongitude:${degrees.longitude.toFixed(
+        4
+      )}\nlatitude:${degrees.latitude.toFixed(4)}`
+      if (index === 0) {
+        const transform = Cesium.Matrix4.fromRotationTranslation(
+          Cesium.Matrix3.fromQuaternion(orientation),
+          position
+        )
+        const comput = new Cesium.Cartesian3()
+        Cesium.Cartesian3.add(
+          position,
+          new Cesium.Cartesian3(0.0, 0, 0),
+          comput
+        )
+        const hpr = Cesium.Transforms.fixedFrameToHeadingPitchRoll(transform)
+        viewer.camera.setView({
+          destination: comput,
+          orientation: {
+            heading: hpr.heading + Cesium.Math.toRadians(90.0),
+            roll: hpr.roll,
+            pitch: hpr.pitch,
+          },
+        })
+      }
+    })
+  })
 }

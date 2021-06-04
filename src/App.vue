@@ -6,6 +6,9 @@
     <ElButton type="primary" size="small" @click="restart">重置</ElButton>
     <ElButton type="primary" size="small" @click="fastForward">快进5s</ElButton>
     <ElButton type="primary" size="small" @click="back">后退5s</ElButton>
+    <ElButton type="primary" size="small" @click="resetCamera">
+      视角重置
+    </ElButton>
   </div>
 </template>
 
@@ -138,6 +141,21 @@
     Cesium.JulianDate.addSeconds(current, -5, result)
     console.log(result)
     setCurrentTime(viewer.value, result)
+  }
+  const resetCamera = () => {
+    if (!viewer.value) return
+    viewer.value.camera.flyTo({
+      destination: Cesium.Cartesian3.fromDegrees(
+        107.86403621404294,
+        31.93440949179516,
+        256158.7686010595
+      ),
+      orientation: {
+        heading: Cesium.Math.toRadians(357.0625550729448),
+        pitch: Cesium.Math.toRadians(-53.70659864617062),
+        roll: Cesium.Math.toRadians(0.003695432978150054),
+      },
+    })
   }
 </script>
 
