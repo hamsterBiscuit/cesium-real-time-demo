@@ -1,5 +1,5 @@
 // 根据两个点 开始角度、夹角度 求取立面的扇形
-export function computeCirclularFlight(x1, y1, x2, y2, fx, angle) {
+export function computeCirclularFlight(x1, y1, x2, y2, fx, angle, height = 0) {
   let positionArr = []
   positionArr.push(x1)
   positionArr.push(y1)
@@ -11,7 +11,8 @@ export function computeCirclularFlight(x1, y1, x2, y2, fx, angle) {
   )
 
   for (let i = fx; i <= fx + angle; i++) {
-    let h = radius * Math.sin((i * Math.PI) / 180.0)
+    // let h = radius * Math.sin((i * Math.PI) / 180.0)
+    let h = height * Math.sin((i * Math.PI) / 180.0)
     let r = Math.cos((i * Math.PI) / 180.0)
 
     let x = (x2 - x1) * r + x1
@@ -26,7 +27,7 @@ export function computeCirclularFlight(x1, y1, x2, y2, fx, angle) {
 }
 
 // 根据第一个点 偏移距离 角度 求取第二个点的坐标
-export function calcPoints(x1, y1, radius, heading) {
+export function calcPoints(x1, y1, radius, heading, height = 0) {
   var m = Cesium.Transforms.eastNorthUpToFixedFrame(
     Cesium.Cartesian3.fromDegrees(x1, y1)
   )
@@ -47,7 +48,7 @@ export function calcPoints(x1, y1, radius, heading) {
   var x2 = Cesium.Math.toDegrees(c.longitude)
   var y2 = Cesium.Math.toDegrees(c.latitude)
 
-  return computeCirclularFlight(x1, y1, x2, y2, 0, 90)
+  return computeCirclularFlight(x1, y1, x2, y2, 0, 90, height)
 }
 
 // var heading = 0;

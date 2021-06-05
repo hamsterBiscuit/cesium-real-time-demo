@@ -254,7 +254,6 @@ export const renderEntity = (
         current.effectList?.[0]?.id.includes('Radar') &&
         current.effectList[0]
       ) {
-        console.log('aaa================')
         const materialData = current.effectList[0]
 
         const r = new Cesium.HeadingPitchRoll(
@@ -419,7 +418,8 @@ export const renderEntity = (
       current.position[0],
       current.position[1],
       materialData.parabolaRadius,
-      heading
+      heading,
+      materialData.parabolaHeight
     )
 
     const entity = viewer.entities.add({
@@ -441,7 +441,8 @@ export const renderEntity = (
         radii: new Cesium.Cartesian3(
           materialData.parabolaRadius,
           materialData.parabolaRadius,
-          materialData.parabolaRadius
+          // materialData.parabolaRadius
+          materialData.parabolaHeight
         ),
         maximumCone: Cesium.Math.toRadians(90),
         material: Cesium.Color.AQUAMARINE.withAlpha(0.3),
@@ -455,12 +456,13 @@ export const renderEntity = (
 
     // 执行动画效果
     viewer.clock.onTick.addEventListener(() => {
-      heading += 0.1
+      heading += 0.2
       positionArr = calcPoints(
         current.position[0],
         current.position[1],
         materialData.parabolaRadius,
-        heading
+        heading,
+        materialData.parabolaHeight
       )
     })
   }
