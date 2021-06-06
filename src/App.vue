@@ -15,6 +15,7 @@
 <script lang="ts" setup>
   import { onMounted, watch } from 'vue'
   import { ElButton } from 'element-plus'
+  import * as Cesium from 'cesium'
   import {
     initCesium,
     clickCesium,
@@ -24,7 +25,7 @@
   } from './hooks/cesium'
   import { useLoadSceneDeply, useLoadEntity } from './hooks/loadData'
 
-  const Cesium = (window as any).Cesium
+  // const Cesium = (window as any).Cesium
 
   const viewer = initCesium()
   const data = useLoadSceneDeply()

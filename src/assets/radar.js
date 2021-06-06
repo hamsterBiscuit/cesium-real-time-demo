@@ -1,3 +1,5 @@
+import * as Cesium from 'cesium'
+
 // 根据两个点 开始角度、夹角度 求取立面的扇形
 export function computeCirclularFlight(x1, y1, x2, y2, fx, angle, height = 0) {
   let positionArr = []
@@ -49,4 +51,16 @@ export function calcPoints(x1, y1, radius, heading, height = 0) {
   var y2 = Cesium.Math.toDegrees(c.latitude)
 
   return computeCirclularFlight(x1, y1, x2, y2, 0, 90, height)
+}
+
+export function calcScanPoints(position, radius, heading, height) {
+  const rx = radius.Math.cos((heading * Math.PI) / 180.0)
+  const ry = radius.Math.sin((heading * Math.PI) / 180.0)
+
+  const cartographic = new Cesium.Cartographic.fromCartesian(position)
+
+  const translation = Cesium.Cartesian3.fromElements(rx, ry, cartographic.height)
+  const d = Cesium.Matrix4.multiplyByPoint(m, translation, new Cesium.Cartesian3)
+
+  // const c = Cesium.Cartographic.fromCartesian(d)
 }

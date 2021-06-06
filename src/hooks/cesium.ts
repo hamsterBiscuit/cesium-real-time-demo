@@ -1,18 +1,18 @@
 import { ref, onMounted, nextTick } from 'vue'
 import type { Ref } from 'vue'
-import * as CesiumEs from 'cesium'
-import { calcPoints } from '../assets/radar.js'
-// import '../../node_modules/cesium/Build/Cesium/Widgets/widgets.css'
+import * as Cesium from 'cesium'
+import { calcPoints, calcScanPoints } from '../assets/radar.js'
+import '../../node_modules/cesium/Build/Cesium/Widgets/widgets.css'
 
 import { MobileList, PathRes, EffectList } from './interface'
 import { loadData } from './loadData'
 
-const Cesium = (window as any).Cesium
+// const Cesium = (window as any).Cesium
 
 // The URL on your server where CesiumJS's static files are hosted.
 // ;(window as any).CESIUM_BASE_URL = '../../node_modules/cesium/Build/Cesium'
 
-export const initCesium = (): Ref<CesiumEs.Viewer> | Ref<undefined> => {
+export const initCesium = (): Ref<Cesium.Viewer> | Ref<undefined> => {
   //wmts?layer=uav_amap%3Aggdt&style=&tilematrixset=EPSG%3A4326&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image%2Fpng&TileMatrix=EPSG%3A4326%3A6&TileCol=105&TileRow=13
   //wmts?tilematrix=9&layer=uav_amap%3Aggdt&style=default&tilerow=193&tilecol=421&tilematrixset=EPSG%3A4326&format=image%2Fpng&service=WMTS&version=1.0.0&request=GetTile
   // http://172.16.100.16:8055/geoserver/gwc/service/wmts?tilematrix=3&layer=uav_amap%3Aggdt&style=default&tilerow=3&tilecol=6&tilematrixset=EPSG%3A4326&format=image%2Fpng&service=WMTS&version=1.0.0&request=GetTile
@@ -40,7 +40,7 @@ export const initCesium = (): Ref<CesiumEs.Viewer> | Ref<undefined> => {
     requestWaterMask: true, // 请求水波纹效果
   })
 
-  const viewer = ref<CesiumEs.Viewer>()
+  const viewer = ref<Cesium.Viewer>()
   onMounted(() => {
     viewer.value = new Cesium.Viewer('cesiumRef', {
       animation: false, //“动画”开关
@@ -58,7 +58,7 @@ export const initCesium = (): Ref<CesiumEs.Viewer> | Ref<undefined> => {
       baseLayerPicker: false,
       terrainProvider: terrainLayer,
       imageryProvider: shadedRelief1,
-    }) as CesiumEs.Viewer
+    }) as Cesium.Viewer
     ;(viewer.value.cesiumWidget.creditContainer as HTMLElement).style.display =
       'none'
 
@@ -70,7 +70,7 @@ export const initCesium = (): Ref<CesiumEs.Viewer> | Ref<undefined> => {
 
 // 设置时间
 export const setStartAndEndTime = (
-  viewer: CesiumEs.Viewer,
+  viewer: Cesium.Viewer,
   start: string,
   end: string
 ): void => {
@@ -79,12 +79,12 @@ export const setStartAndEndTime = (
 }
 
 // 设置当前时间
-export const setCurrentTime = (viewer: CesiumEs.Viewer, time: string): void => {
+export const setCurrentTime = (viewer: Cesium.Viewer, time: string): void => {
   viewer.clock.currentTime = Cesium.JulianDate.fromDate(new Date(time)).clone()
 }
 
 // 左键点击事件
-export const clickCesium = (viewer: Ref<CesiumEs.Viewer>): void => {
+export const clickCesium = (viewer: Ref<Cesium.Viewer>): void => {
   viewer.value.screenSpaceEventHandler.setInputAction((movement) => {
     const pickedLabel = viewer.value.scene.pick(movement.position)
     const cartesian = viewer.value.camera.pickEllipsoid(
@@ -94,7 +94,7 @@ export const clickCesium = (viewer: Ref<CesiumEs.Viewer>): void => {
     console.log(cartesian)
     const cartographic =
       viewer.value.scene.globe.ellipsoid.cartesianToCartographic(
-        cartesian as CesiumEs.Cartesian3
+        cartesian as Cesium.Cartesian3
       )
     //将弧度转为度的十进制度表示
     const longitudeString = Cesium.Math.toDegrees(cartographic.longitude)
@@ -105,7 +105,7 @@ export const clickCesium = (viewer: Ref<CesiumEs.Viewer>): void => {
 
 // 绘制火控雷达
 export const renderAimEffect = (
-  viewer: CesiumEs.Viewer,
+  viewer: Cesium.Viewer,
   current: EffectList,
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
   position: any,
@@ -149,7 +149,7 @@ export const renderAimEffect = (
       }),
     },
     // orientation: new Cesium.CallbackProperty((e) => {
-    //   let m = CesiumEs.getModelMatrix(this.originPosition, this.targetPosition)
+    //   let m = Cesium.getModelMatrix(this.originPosition, this.targetPosition)
     //   let hpr = this.getHeadingPitchRoll(m)
     //   hpr.pitch = hpr.pitch + 3.14 / 2 + 3.14
     //   return Cesium.Transforms.headingPitchRollQuaternion(
@@ -187,7 +187,7 @@ export const renderAimEffect = (
 
 // render Entity
 export const renderEntity = (
-  viewer: CesiumEs.Viewer,
+  viewer: Cesium.Viewer,
   current: MobileList
 ): void => {
   const position = Cesium.Cartesian3.fromDegrees(
@@ -256,8 +256,39 @@ export const renderEntity = (
       ) {
         const materialData = current.effectList[0]
 
+        // 圆柱
         viewer.entities.add({
           position: property,
+          cylinder: {
+            length: materialData.radarHeight,
+            topRadius: materialData.bottomRadius,
+            bottomRadius: materialData.bottomRadius,
+            material: Cesium.Color.fromCssColorString(materialData.color),
+            outline: true,
+            outlineColor: Cesium.Color.fromCssColorString(
+              materialData.outlineColor
+            ),
+          },
+        })
+
+        let heading = 0
+        viewer.entities.add({
+          wall: {
+            positions: new Cesium.CallbackProperty((time: any) => {
+              const position = property.getValue(time)
+              return Cesium.Cartesian3.fromDegreesArray(
+                calcScanPoints(
+                  position,
+                  materialData.bottomRadius,
+                  heading,
+                  materialData.radarHeight
+                )
+              )
+            }),
+            material: Cesium.Color.fromCssColorString(
+              materialData.scannerColor
+            ),
+          },
         })
       }
 
@@ -344,7 +375,7 @@ export const renderEntity = (
 }
 
 // 第一人称
-export const firstCamera = (viewer: CesiumEs.Viewer, entityId) => {
+export const firstCamera = (viewer: Cesium.Viewer, entityId) => {
   viewer.scene.postUpdate.addEventListener((__, time) => {
     entityList.forEach((entity, index) => {
       const orientation = entity.orientation.getValue(time)
