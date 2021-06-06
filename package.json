@@ -5,7 +5,7 @@
     "dev": "vite",
     "build": "vuedx-typecheck . && vite build",
     "serve": "vite preview",
-    "lint:script": "eslint --ext .ts,vue --ignore-path .gitignore .",
+    "lint:script": "eslint --ext .js,.ts,vue --ignore-path .gitignore .",
     "lint:style": "stylelint src/**/*.{css,scss,vue}"
   },
   "dependencies": {
@@ -35,7 +35,7 @@
     "vite": "^2.3.5"
   },
   "lint-staged": {
-    "*.{ts,vue}": "eslint --fix",
+    "*.{js,ts,vue}": "eslint --fix",
     "*.{css,scss,vue}": "stylelint --fix",
     "*": "prettier -w -u"
   }

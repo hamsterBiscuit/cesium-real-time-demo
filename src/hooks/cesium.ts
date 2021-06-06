@@ -1,7 +1,8 @@
 import { ref, onMounted, nextTick } from 'vue'
 import type { Ref } from 'vue'
 import * as Cesium from 'cesium'
-import { calcPoints, calcScanPoints } from '../assets/radar.js'
+import { calcPoints, calcScanPoints } from './radar.js'
+import { disTance } from './calc.js'
 import '../../node_modules/cesium/Build/Cesium/Widgets/widgets.css'
 
 import { MobileList, PathRes, EffectList } from './interface'
@@ -132,56 +133,64 @@ export const renderAimEffect = (
     id: current.id + currentId,
     name: current.id,
     show: false,
-    polyline: {
-      positions: new Cesium.CallbackProperty((time: any) => {
-        const destEntity = viewer.entities.getById(current.destID)
-        const { currentPosition, destPosition } = getPosition(time)
-        if (destPosition && currentPosition) {
-          return [currentPosition, destPosition]
-        } else {
-          return []
-        }
-      }, false),
-      width: 20.0,
-      material: new Cesium.PolylineGlowMaterialProperty({
-        color: Cesium.Color.RED.withAlpha(1),
-        // glowPower: 0.25,
-      }),
-    },
-    // orientation: new Cesium.CallbackProperty((e) => {
-    //   let m = Cesium.getModelMatrix(this.originPosition, this.targetPosition)
-    //   let hpr = this.getHeadingPitchRoll(m)
-    //   hpr.pitch = hpr.pitch + 3.14 / 2 + 3.14
-    //   return Cesium.Transforms.headingPitchRollQuaternion(
-    //     this.originPosition,
-    //     hpr
-    //   )
-    // }, false),
-    // position: new Cesium.CallbackProperty((e) => {
-    //   const { currentPosition, destPosition } = getPosition(e)
-    //   if (destPosition && currentPosition) {
-    //     return Cesium.Cartesian3.midpoint(
-    //       currentPosition,
-    //       destPosition,
-    //       new Cesium.Cartesian3()
-    //     )
-    //   } else {
-    //     return 0
-    //   }
-    // }, false),
-    // cylinder: {
-    //   length: new Cesium.CallbackProperty((e: any) => {
-    //     const { currentPosition, destPosition } = getPosition(e)
+    // polyline: {
+    //   positions: new Cesium.CallbackProperty((time: any) => {
+    //     const destEntity = viewer.entities.getById(current.destID)
+    //     const { currentPosition, destPosition } = getPosition(time)
     //     if (destPosition && currentPosition) {
-    //       return Cesium.Cartesian3.distance(currentPosition, destPosition)
+    //       return [currentPosition, destPosition]
     //     } else {
-    //       return 0
+    //       return []
     //     }
     //   }, false),
-    // topRadius: 15.0,
-    // bottomRadius: 0.0,
-    // material: Cesium.Color.RED.withAlpha(0.4),
+    //   width: 20.0,
+    //   material: new Cesium.PolylineGlowMaterialProperty({
+    //     color: Cesium.Color.RED.withAlpha(1),
+    //     // glowPower: 0.25,
+    //   }),
     // },
+    position: position,
+    orientation: new Cesium.CallbackProperty((time: any) => {
+      const { currentPosition, destPosition } = getPosition(time)
+      if (destPosition && currentPosition) {
+        const velocityResult = new Cesium.Cartesian3()
+        const velocity = Cesium.Cartesian3.subtract(
+          destPosition as Cesium.Cartesian3,
+          currentPosition,
+          velocityResult
+        )
+        const value = Cesium.Cartesian3.normalize(velocity, velocityResult)
+
+        const rotationScratch =
+          Cesium.Transforms.rotationMatrixFromPositionVelocity(
+            currentPosition,
+            value
+          )
+        const quaternion = Cesium.Quaternion.fromRotationMatrix(rotationScratch)
+        return quaternion
+      } else {
+        return new Cesium.Quaternion()
+      }
+    }, false),
+    // new Cesium.Cartesian3(30000.0, 30000.0, 30000.0),
+    ellipsoid: {
+      radii: new Cesium.CallbackProperty((time: any) => {
+        const { currentPosition, destPosition } = getPosition(time)
+        if (destPosition && currentPosition) {
+          const distance = disTance(currentPosition, destPosition)
+          return new Cesium.Cartesian3(distance, distance, distance)
+        } else {
+          return new Cesium.Cartesian3()
+        }
+      }, false),
+      innerRadii: new Cesium.Cartesian3(10.0, 10.0, 10.0),
+      minimumClock: Cesium.Math.toRadians(-2.0),
+      maximumClock: Cesium.Math.toRadians(2.0),
+      minimumCone: Cesium.Math.toRadians(88.0),
+      maximumCone: Cesium.Math.toRadians(91.0),
+      material: Cesium.Color.RED.withAlpha(1),
+      outline: true,
+    },
   })
 }
 

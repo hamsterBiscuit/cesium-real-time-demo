@@ -91,6 +91,5 @@ export function calcScanPoints(position, radius, heading, height) {
   const x3 = Cesium.Math.toDegrees(c3.longitude)
   const y3 = Cesium.Math.toDegrees(c3.latitude)
   const h3 = Cesium.Math.toDegrees(c3.height)
-  // positionArr.push(x3, y3, h3)
   return positionArr
 }
