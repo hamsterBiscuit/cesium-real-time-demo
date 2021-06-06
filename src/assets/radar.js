@@ -50,34 +50,3 @@ export function calcPoints(x1, y1, radius, heading, height = 0) {
 
   return computeCirclularFlight(x1, y1, x2, y2, 0, 90, height)
 }
-
-// var heading = 0;
-
-// var positionArr = calcPoints(114, 30, 100, heading);
-
-// var entity = viewer.entities.add({
-//   wall: {
-//     positions: new Cesium.CallbackProperty(() => { return Cesium.Cartesian3.fromDegreesArrayHeights(positionArr) }, false),
-//     material: Cesium.Color.AQUAMARINE.withAlpha(0.5)
-//   }
-// });
-
-// viewer.entities.add({
-//   position: Cesium.Cartesian3.fromDegrees(114, 30),
-//   ellipsoid: {
-//     radii: new Cesium.Cartesian3(100, 100, 100),
-//     maximumCone: Cesium.Math.toRadians(90),
-//     material: Cesium.Color.AQUAMARINE.withAlpha(0.3),
-//     outline: true,
-//     outlineColor: Cesium.Color.AQUAMARINE.withAlpha(0.5),
-//     outlineWidth: 1
-//   }
-// });
-
-// viewer.zoomTo(viewer.entities);
-
-// // 执行动画效果
-// viewer.clock.onTick.addEventListener(() => {
-//   heading += 0.1;
-//   positionArr = calcPoints(114, 30, 100, heading);
-// });
