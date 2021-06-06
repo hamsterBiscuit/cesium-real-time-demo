@@ -10,7 +10,7 @@ import { loadData } from './loadData'
 // const Cesium = (window as any).Cesium
 
 // The URL on your server where CesiumJS's static files are hosted.
-// ;(window as any).CESIUM_BASE_URL = '../../node_modules/cesium/Build/Cesium'
+;(window as any).CESIUM_BASE_URL = '../../node_modules/cesium/Build/Cesium'
 
 export const initCesium = (): Ref<Cesium.Viewer> | Ref<undefined> => {
   //wmts?layer=uav_amap%3Aggdt&style=&tilematrixset=EPSG%3A4326&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image%2Fpng&TileMatrix=EPSG%3A4326%3A6&TileCol=105&TileRow=13
@@ -220,12 +220,52 @@ export const renderEntity = (
         )
         property.addSample(time, position)
       })
+      property.setInterpolationOptions({
+        interpolationDegree: 1,
+        interpolationAlgorithm: Cesium.LinearApproximation,
+      })
+
+      const orientationProperty = new Cesium.VelocityOrientationProperty(
+        property
+      )
+      const newOrientationProperty = new Cesium.SampledProperty(
+        Cesium.Quaternion
+      )
+      res.path.forEach((i) => {
+        const time = Cesium.JulianDate.fromDate(new Date(i.time))
+        const orientation = orientationProperty.getValue(time)
+        const o = Cesium.HeadingPitchRoll.fromQuaternion(orientation)
+
+        const q = Cesium.Quaternion.fromHeadingPitchRoll(o)
+        newOrientationProperty.addSample(time, q)
+      })
+      const newWedgeOrientationProperty = new Cesium.SampledProperty(
+        Cesium.Quaternion
+      )
+      res.path.forEach((i, index) => {
+        const time = Cesium.JulianDate.fromDate(new Date(i.time))
+        const orientation = orientationProperty.getValue(time)
+        const o = Cesium.HeadingPitchRoll.fromQuaternion(orientation)
+        if (index % 2) {
+          o.heading += Cesium.Math.toRadians(10.0)
+        } else {
+          o.heading += Cesium.Math.toRadians(-10.0)
+        }
+
+        const q = Cesium.Quaternion.fromHeadingPitchRoll(o)
+        newWedgeOrientationProperty.addSample(time, q)
+      })
+      newOrientationProperty.setInterpolationOptions({
+        interpolationDegree: 1,
+        interpolationAlgorithm: Cesium.LinearApproximation,
+      })
+      newWedgeOrientationProperty.setInterpolationOptions({
+        interpolationDegree: 1,
+        interpolationAlgorithm: Cesium.LinearApproximation,
+      })
       // entity.addProperty
       entity.position = property
-      entity.orientation = new Cesium.VelocityOrientationProperty(
-        property,
-        Cesium.Ellipsoid.UNIT_SPHERE
-      )
+      entity.orientation = newOrientationProperty
 
       // 航迹
       if (!current.id.includes('Missile')) {
@@ -247,6 +287,39 @@ export const renderEntity = (
           }),
           width: 10,
         }
+        // 预警雷达
+        viewer.entities.add({
+          name: 'Wedge',
+          position: property,
+          orientation: newOrientationProperty,
+          ellipsoid: {
+            radii: new Cesium.Cartesian3(30000.0, 30000.0, 30000.0),
+            innerRadii: new Cesium.Cartesian3(10.0, 10.0, 10.0),
+            minimumClock: Cesium.Math.toRadians(-10.0),
+            maximumClock: Cesium.Math.toRadians(10.0),
+            minimumCone: Cesium.Math.toRadians(80.0),
+            maximumCone: Cesium.Math.toRadians(100.0),
+            material: Cesium.Color.AQUA.withAlpha(0.3),
+            outline: true,
+          },
+        })
+
+        // 预警雷达-扫描雷达
+        viewer.entities.add({
+          name: 'Wedge',
+          position: property,
+          orientation: newWedgeOrientationProperty,
+          ellipsoid: {
+            radii: new Cesium.Cartesian3(30000.0, 30000.0, 30000.0),
+            innerRadii: new Cesium.Cartesian3(10.0, 10.0, 10.0),
+            minimumClock: Cesium.Math.toRadians(-2.0),
+            maximumClock: Cesium.Math.toRadians(2.0),
+            minimumCone: Cesium.Math.toRadians(88.0),
+            maximumCone: Cesium.Math.toRadians(91.0),
+            material: Cesium.Color.RED.withAlpha(0.1),
+            outline: true,
+          },
+        })
       }
 
       // 雷达-预警机
@@ -273,18 +346,39 @@ export const renderEntity = (
 
         let heading = 0
         viewer.entities.add({
+          // polygon: {
+          //   height: 0,
+          //   hierarchy: new Cesium.CallbackProperty((time: any) => {
+          //     const position = property.getValue(time)
+          //     const result = calcScanPoints(
+          //       position,
+          //       materialData.bottomRadius,
+          //       heading,
+          //       materialData.radarHeight
+          //     )
+          //     // new Cesium.Cartesian3()
+          //     return Cesium.Cartesian3.fromDegreesArrayHeights(result)
+          //   }, false),
+          //   extrudedHeight: 50000,
+          //   perPositionHeight: true,
+          //   material: Cesium.Color.fromCssColorString(
+          //     materialData.scannerColor
+          //   ),
+          // },
           wall: {
             positions: new Cesium.CallbackProperty((time: any) => {
               const position = property.getValue(time)
-              return Cesium.Cartesian3.fromDegreesArray(
-                calcScanPoints(
-                  position,
-                  materialData.bottomRadius,
-                  heading,
-                  materialData.radarHeight
-                )
+              heading += 8
+              const result = calcScanPoints(
+                position,
+                materialData.bottomRadius,
+                heading,
+                materialData.radarHeight
               )
-            }),
+              // new Cesium.Cartesian3()
+              return Cesium.Cartesian3.fromDegreesArrayHeights(result)
+            }, false),
+            maximumHeights: [6000, 6000],
             material: Cesium.Color.fromCssColorString(
               materialData.scannerColor
             ),
@@ -319,6 +413,7 @@ export const renderEntity = (
     (current.type === 1 || current.id.includes('radar')) &&
     current.effectList[0]
   ) {
+    // return
     const materialData = current.effectList[0]
 
     let heading = 0

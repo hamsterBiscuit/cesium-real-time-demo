@@ -54,13 +54,43 @@ export function calcPoints(x1, y1, radius, heading, height = 0) {
 }
 
 export function calcScanPoints(position, radius, heading, height) {
-  const rx = radius.Math.cos((heading * Math.PI) / 180.0)
-  const ry = radius.Math.sin((heading * Math.PI) / 180.0)
+  const positionArr = []
+  const m = Cesium.Transforms.eastNorthUpToFixedFrame(position)
+  const rx = radius * Math.cos((heading * Math.PI) / 180.0)
+  const ry = radius * Math.sin((heading * Math.PI) / 180.0)
 
   const cartographic = new Cesium.Cartographic.fromCartesian(position)
+  const x1 = Cesium.Math.toDegrees(cartographic.longitude)
+  const y1 = Cesium.Math.toDegrees(cartographic.latitude)
+  const h1 = Cesium.Math.toDegrees(cartographic.height)
+  positionArr.push(x1, y1, h1)
 
-  const translation = Cesium.Cartesian3.fromElements(rx, ry, cartographic.height)
-  const d = Cesium.Matrix4.multiplyByPoint(m, translation, new Cesium.Cartesian3)
+  // const
 
-  // const c = Cesium.Cartographic.fromCartesian(d)
+  const translation = Cesium.Cartesian3.fromElements(rx, ry, 0)
+  const d2 = Cesium.Matrix4.multiplyByPoint(
+    m,
+    translation,
+    new Cesium.Cartesian3()
+  )
+  const c2 = Cesium.Cartographic.fromCartesian(d2)
+
+  const x2 = Cesium.Math.toDegrees(c2.longitude)
+  const y2 = Cesium.Math.toDegrees(c2.latitude)
+  const h2 = Cesium.Math.toDegrees(c2.height)
+  positionArr.push(x2, y2, h2)
+
+  const translation2 = Cesium.Cartesian3.fromElements(rx, ry, 0)
+  const d3 = Cesium.Matrix4.multiplyByPoint(
+    m,
+    translation2,
+    new Cesium.Cartesian3()
+  )
+  const c3 = Cesium.Cartographic.fromCartesian(d3)
+
+  const x3 = Cesium.Math.toDegrees(c3.longitude)
+  const y3 = Cesium.Math.toDegrees(c3.latitude)
+  const h3 = Cesium.Math.toDegrees(c3.height)
+  // positionArr.push(x3, y3, h3)
+  return positionArr
 }
