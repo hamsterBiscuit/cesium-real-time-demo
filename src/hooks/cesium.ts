@@ -161,6 +161,13 @@ export const renderAimEffect = (
             value
           )
         const quaternion = Cesium.Quaternion.fromRotationMatrix(rotationScratch)
+        const hpr = Cesium.HeadingPitchRoll.fromQuaternion(quaternion)
+        hpr.pitch = hpr.pitch + Cesium.Math.toRadians(90)
+        return Cesium.Quaternion.fromHeadingPitchRoll(hpr)
+        return Cesium.Transforms.headingPitchRollQuaternion(
+          currentPosition,
+          hpr
+        )
         return quaternion
       } else {
         return new Cesium.Quaternion()
