@@ -14,7 +14,7 @@ export function computeCirclularFlight(x1, y1, x2, y2, fx, angle, height = 0) {
 
   for (let i = fx; i <= fx + angle; i++) {
     // let h = radius * Math.sin((i * Math.PI) / 180.0)
-    let h = height * Math.sin((i * Math.PI) / 180.0)
+    let h = height * Math.sin((i * 2 * Math.PI) / 180.0)
     let r = Math.cos((i * Math.PI) / 180.0)
 
     let x = (x2 - x1) * r + x1
