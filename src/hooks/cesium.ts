@@ -164,11 +164,6 @@ export const renderAimEffect = (
         const hpr = Cesium.HeadingPitchRoll.fromQuaternion(quaternion)
         hpr.pitch = hpr.pitch + Cesium.Math.toRadians(90)
         return Cesium.Quaternion.fromHeadingPitchRoll(hpr)
-        return Cesium.Transforms.headingPitchRollQuaternion(
-          currentPosition,
-          hpr
-        )
-        return quaternion
       } else {
         return new Cesium.Quaternion()
       }
@@ -189,24 +184,6 @@ export const renderAimEffect = (
       bottomRadius: 3000.0,
       material: Cesium.Color.RED.withAlpha(0.1),
     },
-    // ellipsoid: {
-    //   radii: new Cesium.CallbackProperty((time: any) => {
-    //     const { currentPosition, destPosition } = getPosition(time)
-    //     if (destPosition && currentPosition) {
-    //       const distance = disTance(currentPosition, destPosition)
-    //       return new Cesium.Cartesian3(distance, distance, distance)
-    //     } else {
-    //       return new Cesium.Cartesian3()
-    //     }
-    //   }, false),
-    //   innerRadii: new Cesium.Cartesian3(10.0, 10.0, 10.0),
-    //   minimumClock: Cesium.Math.toRadians(-2.0),
-    //   maximumClock: Cesium.Math.toRadians(2.0),
-    //   minimumCone: Cesium.Math.toRadians(88.0),
-    //   maximumCone: Cesium.Math.toRadians(91.0),
-    //   material: Cesium.Color.RED.withAlpha(1),
-    //   outline: true,
-    // },
   })
 }
 
