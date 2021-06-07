@@ -11,7 +11,6 @@ import { loadData } from './loadData'
 // const Cesium = (window as any).Cesium
 
 // The URL on your server where CesiumJS's static files are hosted.
-;(window as any).CESIUM_BASE_URL = '../../node_modules/cesium/Build/Cesium'
 
 export const initCesium = (): Ref<Cesium.Viewer> | Ref<undefined> => {
   //wmts?layer=uav_amap%3Aggdt&style=&tilematrixset=EPSG%3A4326&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image%2Fpng&TileMatrix=EPSG%3A4326%3A6&TileCol=105&TileRow=13
@@ -256,6 +255,7 @@ export const renderEntity = (
         } else {
           o.heading += Cesium.Math.toRadians(-10.0)
         }
+        // o.pitch += Cesium.Math.toRadians(90.0)
 
         const q = Cesium.Quaternion.fromHeadingPitchRoll(o)
         newWedgeOrientationProperty.addSample(time, q)
@@ -323,7 +323,7 @@ export const renderEntity = (
           // cylinder: {
           //   length: 30000.0,
           //   topRadius: 0.0,
-          //   bottomRadius: 30000.0,
+          //   bottomRadius: 3000.0,
           //   material: Cesium.Color.RED.withAlpha(0.1),
           // },
 
