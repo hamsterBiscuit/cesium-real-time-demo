@@ -133,22 +133,6 @@ export const renderAimEffect = (
     id: current.id + currentId,
     name: current.id,
     show: false,
-    // polyline: {
-    //   positions: new Cesium.CallbackProperty((time: any) => {
-    //     const destEntity = viewer.entities.getById(current.destID)
-    //     const { currentPosition, destPosition } = getPosition(time)
-    //     if (destPosition && currentPosition) {
-    //       return [currentPosition, destPosition]
-    //     } else {
-    //       return []
-    //     }
-    //   }, false),
-    //   width: 20.0,
-    //   material: new Cesium.PolylineGlowMaterialProperty({
-    //     color: Cesium.Color.RED.withAlpha(1),
-    //     // glowPower: 0.25,
-    //   }),
-    // },
     position: position,
     orientation: new Cesium.CallbackProperty((time: any) => {
       const { currentPosition, destPosition } = getPosition(time)
@@ -172,7 +156,6 @@ export const renderAimEffect = (
         return new Cesium.Quaternion()
       }
     }, false),
-    // new Cesium.Cartesian3(30000.0, 30000.0, 30000.0),
     ellipsoid: {
       radii: new Cesium.CallbackProperty((time: any) => {
         const { currentPosition, destPosition } = getPosition(time)
@@ -234,26 +217,39 @@ export const renderEntity = (
         interpolationAlgorithm: Cesium.LinearApproximation,
       })
 
+      // 原始方向数据
       const orientationProperty = new Cesium.VelocityOrientationProperty(
         property
       )
+      // 预警雷达
       const newOrientationProperty = new Cesium.SampledProperty(
+        Cesium.Quaternion
+      )
+      // 模型
+      const modelOrientationProperty = new Cesium.SampledProperty(
         Cesium.Quaternion
       )
       res.path.forEach((i) => {
         const time = Cesium.JulianDate.fromDate(new Date(i.time))
         const orientation = orientationProperty.getValue(time)
+        if (!orientation) return
         const o = Cesium.HeadingPitchRoll.fromQuaternion(orientation)
+        // o.heading += Cesium.Math.PI_OVER_TWO
+        // const matrix4 = Cesium.Matrix4.fro
 
         const q = Cesium.Quaternion.fromHeadingPitchRoll(o)
-        newOrientationProperty.addSample(time, q)
+        newOrientationProperty.addSample(time, orientation)
+        modelOrientationProperty.addSample(time, orientation)
+        // modelOrientationProperty.addSample(time, q)
       })
+      // 火控雷达数据
       const newWedgeOrientationProperty = new Cesium.SampledProperty(
         Cesium.Quaternion
       )
       res.path.forEach((i, index) => {
         const time = Cesium.JulianDate.fromDate(new Date(i.time))
         const orientation = orientationProperty.getValue(time)
+        if (!orientation) return
         const o = Cesium.HeadingPitchRoll.fromQuaternion(orientation)
         if (index % 2) {
           o.heading += Cesium.Math.toRadians(10.0)
@@ -264,7 +260,12 @@ export const renderEntity = (
         const q = Cesium.Quaternion.fromHeadingPitchRoll(o)
         newWedgeOrientationProperty.addSample(time, q)
       })
+
       newOrientationProperty.setInterpolationOptions({
+        interpolationDegree: 1,
+        interpolationAlgorithm: Cesium.LinearApproximation,
+      })
+      modelOrientationProperty.setInterpolationOptions({
         interpolationDegree: 1,
         interpolationAlgorithm: Cesium.LinearApproximation,
       })
@@ -272,9 +273,9 @@ export const renderEntity = (
         interpolationDegree: 1,
         interpolationAlgorithm: Cesium.LinearApproximation,
       })
-      // entity.addProperty
+      // 3D model
       entity.position = property
-      entity.orientation = newOrientationProperty
+      entity.orientation = modelOrientationProperty
 
       // 航迹
       if (!current.id.includes('Missile')) {
@@ -315,9 +316,17 @@ export const renderEntity = (
 
         // 预警雷达-扫描雷达
         viewer.entities.add({
+          id: current.id + 'Scan',
           name: 'Wedge',
           position: property,
           orientation: newWedgeOrientationProperty,
+          // cylinder: {
+          //   length: 30000.0,
+          //   topRadius: 0.0,
+          //   bottomRadius: 30000.0,
+          //   material: Cesium.Color.RED.withAlpha(0.1),
+          // },
+
           ellipsoid: {
             radii: new Cesium.Cartesian3(30000.0, 30000.0, 30000.0),
             innerRadii: new Cesium.Cartesian3(10.0, 10.0, 10.0),
@@ -337,7 +346,6 @@ export const renderEntity = (
         current.effectList[0]
       ) {
         const materialData = current.effectList[0]
-
         // 圆柱
         viewer.entities.add({
           position: property,
@@ -355,25 +363,6 @@ export const renderEntity = (
 
         let heading = 0
         viewer.entities.add({
-          // polygon: {
-          //   height: 0,
-          //   hierarchy: new Cesium.CallbackProperty((time: any) => {
-          //     const position = property.getValue(time)
-          //     const result = calcScanPoints(
-          //       position,
-          //       materialData.bottomRadius,
-          //       heading,
-          //       materialData.radarHeight
-          //     )
-          //     // new Cesium.Cartesian3()
-          //     return Cesium.Cartesian3.fromDegreesArrayHeights(result)
-          //   }, false),
-          //   extrudedHeight: 50000,
-          //   perPositionHeight: true,
-          //   material: Cesium.Color.fromCssColorString(
-          //     materialData.scannerColor
-          //   ),
-          // },
           wall: {
             positions: new Cesium.CallbackProperty((time: any) => {
               const position = property.getValue(time)
@@ -384,7 +373,6 @@ export const renderEntity = (
                 heading,
                 materialData.radarHeight
               )
-              // new Cesium.Cartesian3()
               return Cesium.Cartesian3.fromDegreesArrayHeights(result)
             }, false),
             maximumHeights: [6000, 6000],

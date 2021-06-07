@@ -50,8 +50,14 @@
               const entity = viewer.value.entities.getById(
                 i.parameters?.strEffectID + i.parameters?.strEntityID
               )
+              // 扫描雷达
+              const scanEntity = viewer.value.entities.getById(
+                i.parameters?.strEntityID + 'Scan'
+              )
               if (entity) {
                 entity.show = i.parameters?.visible
+                if (!scanEntity) return
+                scanEntity.show = !i.parameters?.visible
               }
             }
           }
@@ -140,7 +146,6 @@
     const current = viewer.value.clock.currentTime.clone()
     const result = new Cesium.JulianDate()
     Cesium.JulianDate.addSeconds(current, -5, result)
-    console.log(result)
     setCurrentTime(viewer.value, result)
   }
   const resetCamera = () => {
