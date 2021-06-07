@@ -132,7 +132,18 @@ export const renderAimEffect = (
     id: current.id + currentId,
     name: current.id,
     show: false,
-    position: position,
+    position: new Cesium.CallbackProperty((time: any) => {
+      const { currentPosition, destPosition } = getPosition(time)
+      if (destPosition && currentPosition) {
+        return Cesium.Cartesian3.midpoint(
+          destPosition as Cesium.Cartesian3,
+          currentPosition,
+          new Cesium.Cartesian3()
+        )
+      } else {
+        return new Cesium.Cartesian3()
+      }
+    }, false),
     orientation: new Cesium.CallbackProperty((time: any) => {
       const { currentPosition, destPosition } = getPosition(time)
       if (destPosition && currentPosition) {
@@ -155,24 +166,40 @@ export const renderAimEffect = (
         return new Cesium.Quaternion()
       }
     }, false),
-    ellipsoid: {
-      radii: new Cesium.CallbackProperty((time: any) => {
+    cylinder: {
+      length: new Cesium.CallbackProperty((time: any) => {
         const { currentPosition, destPosition } = getPosition(time)
         if (destPosition && currentPosition) {
-          const distance = disTance(currentPosition, destPosition)
-          return new Cesium.Cartesian3(distance, distance, distance)
+          return Cesium.Cartesian3.distance(
+            destPosition as Cesium.Cartesian3,
+            currentPosition
+          )
         } else {
-          return new Cesium.Cartesian3()
+          return 0
         }
       }, false),
-      innerRadii: new Cesium.Cartesian3(10.0, 10.0, 10.0),
-      minimumClock: Cesium.Math.toRadians(-2.0),
-      maximumClock: Cesium.Math.toRadians(2.0),
-      minimumCone: Cesium.Math.toRadians(88.0),
-      maximumCone: Cesium.Math.toRadians(91.0),
-      material: Cesium.Color.RED.withAlpha(1),
-      outline: true,
+      topRadius: 0.0,
+      bottomRadius: 3000.0,
+      material: Cesium.Color.RED.withAlpha(0.1),
     },
+    // ellipsoid: {
+    //   radii: new Cesium.CallbackProperty((time: any) => {
+    //     const { currentPosition, destPosition } = getPosition(time)
+    //     if (destPosition && currentPosition) {
+    //       const distance = disTance(currentPosition, destPosition)
+    //       return new Cesium.Cartesian3(distance, distance, distance)
+    //     } else {
+    //       return new Cesium.Cartesian3()
+    //     }
+    //   }, false),
+    //   innerRadii: new Cesium.Cartesian3(10.0, 10.0, 10.0),
+    //   minimumClock: Cesium.Math.toRadians(-2.0),
+    //   maximumClock: Cesium.Math.toRadians(2.0),
+    //   minimumCone: Cesium.Math.toRadians(88.0),
+    //   maximumCone: Cesium.Math.toRadians(91.0),
+    //   material: Cesium.Color.RED.withAlpha(1),
+    //   outline: true,
+    // },
   })
 }
 
