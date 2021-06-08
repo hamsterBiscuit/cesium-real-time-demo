@@ -103,6 +103,32 @@ export const clickCesium = (viewer: Ref<Cesium.Viewer>): void => {
   }, Cesium.ScreenSpaceEventType.LEFT_CLICK)
 }
 
+function changeEntityModel(viewer: Ref<Cesium.Viewer>, mode: 'model' | 'img') {
+  viewer.value.entities.values.forEach((entity) => {
+    if (entity.billboard && entity.model) {
+      entity.billboard.show = mode === 'img'
+      entity.model.show = mode === 'model'
+    }
+  })
+}
+
+export const changeCameraHeight = (viewer: Ref<Cesium.Viewer>): void => {
+  const handler = new Cesium.ScreenSpaceEventHandler(viewer.value.scene.canvas)
+  const benchmark = 200000
+  let isHigh = true
+  handler.setInputAction(function (wheelment) {
+    const height = viewer.value.camera.positionCartographic.height
+    console.log(height)
+    if (height > benchmark && !isHigh) {
+      isHigh = !isHigh
+      changeEntityModel(viewer, 'img')
+    } else if (height < benchmark && isHigh) {
+      isHigh = !isHigh
+      changeEntityModel(viewer, 'model')
+    }
+  }, Cesium.ScreenSpaceEventType.WHEEL)
+}
+
 // 绘制火控雷达
 export const renderAimEffect = (
   viewer: Cesium.Viewer,
@@ -206,6 +232,18 @@ export const renderEntity = (
       scale: current.scale,
       maximumScale: current.maximumScale,
       minimumPixelSize: 32,
+      show: false,
+    },
+    billboard: {
+      image: current.image,
+      // pixelOffset: new Cesium.Cartesian2(0, -50), // default: (0, 0)
+      eyeOffset: new Cesium.Cartesian3(0.0, 0.0, 0.0), // default
+      horizontalOrigin: Cesium.HorizontalOrigin.CENTER, // default
+      // verticalOrigin: Cesium.VerticalOrigin.BOTTOM, // default: CENTER
+      scale: current.imageScale, // default: 1.0
+      // color: Cesium.Color.LIME, // default: WHITE
+      rotation: current.modeloffsetHeading ? -Cesium.Math.PI_OVER_TWO : 0.0, // default: 0.0
+      alignedAxis: Cesium.Cartesian3.ZERO, // default
     },
   })
   // 有时间属性

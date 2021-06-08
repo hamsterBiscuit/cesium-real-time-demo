@@ -22,6 +22,7 @@
     setStartAndEndTime,
     setCurrentTime,
     renderEntity,
+    changeCameraHeight,
   } from './hooks/cesium'
   import { useLoadSceneDeply, useLoadEntity } from './hooks/loadData'
 
@@ -89,6 +90,7 @@
   onMounted(() => {
     if (!viewer.value) return
     clickCesium(viewer)
+    changeCameraHeight(viewer)
     // const j20 = viewer.value.entities.add({
     //   name: 'j20',
     //   position: Cesium.Cartesian3.fromDegrees(
