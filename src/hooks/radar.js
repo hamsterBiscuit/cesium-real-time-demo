@@ -92,3 +92,37 @@ export function calcScanPoints(position, radius, heading, height) {
   // positionArr.push(x3, y3, h3)
   return positionArr
 }
+
+export function createROIfromRotation(position, rotation, length) {
+  // position: Cartographic - {latitude, longitude, altitude})
+  // rotation: HeadingPitchRoll - {heading, pitch, roll}
+
+  // Based on answer found here:
+  // https://stackoverflow.com/questions/58021985/create-a-point-in-a-direction-in-cesiumjs
+
+  var cartesianPosition =
+    Cesium.Ellipsoid.WGS84.cartographicToCartesian(position)
+
+  rotation.heading = rotation.heading - Cesium.Math.toRadians(90)
+  var referenceFrame1 = Cesium.Quaternion.fromHeadingPitchRoll(rotation)
+  // var referenceFrame1 = Cesium.Transforms.headingPitchRollQuaternion(
+  //   cartesianPosition,
+  //   rotation
+  // )
+  // const referenceFrame1 = rotation
+  var rotationMatrix = Cesium.Matrix3.fromQuaternion(
+    referenceFrame1,
+    new Cesium.Matrix3()
+  )
+  var rotationScaled = Cesium.Matrix3.multiplyByVector(
+    rotationMatrix,
+    new Cesium.Cartesian3(length, 0, 0),
+    new Cesium.Cartesian3()
+  )
+  var roiPos = Cesium.Cartesian3.add(
+    cartesianPosition,
+    rotationScaled,
+    new Cesium.Cartesian3()
+  )
+  return roiPos
+}

@@ -1,7 +1,7 @@
 import { ref, onMounted, nextTick } from 'vue'
 import type { Ref } from 'vue'
 import * as Cesium from 'cesium'
-import { calcPoints, calcScanPoints } from './radar.js'
+import { calcPoints, calcScanPoints, createROIfromRotation } from './radar.js'
 import { disTance } from './calc.js'
 import '../../node_modules/cesium/Build/Cesium/Widgets/widgets.css'
 
@@ -182,7 +182,7 @@ export const renderAimEffect = (
       }, false),
       topRadius: 0.0,
       bottomRadius: 3000.0,
-      material: Cesium.Color.RED.withAlpha(0.1),
+      material: Cesium.Color.RED.withAlpha(0.5),
     },
   })
 }
@@ -205,8 +205,7 @@ export const renderEntity = (
       uri: current.url,
       scale: current.scale,
       maximumScale: current.maximumScale,
-      minimumPixelSize: 128,
-      // color: Cesium.Color.RED,
+      minimumPixelSize: 32,
     },
   })
   // 有时间属性
@@ -266,7 +265,7 @@ export const renderEntity = (
         } else {
           o.heading += Cesium.Math.toRadians(-10.0)
         }
-        // o.pitch += Cesium.Math.toRadians(90.0)
+        o.pitch += Cesium.Math.toRadians(90.0)
 
         const q = Cesium.Quaternion.fromHeadingPitchRoll(o)
         newWedgeOrientationProperty.addSample(time, q)
@@ -310,6 +309,7 @@ export const renderEntity = (
         }
         // 预警雷达
         viewer.entities.add({
+          id: current.id + 'Scan',
           name: 'Wedge',
           position: property,
           orientation: newOrientationProperty,
@@ -326,22 +326,38 @@ export const renderEntity = (
         })
 
         // 预警雷达-扫描雷达
-        viewer.entities.add({
-          id: current.id + 'Scan',
-          name: 'Wedge',
-          position: property,
-          orientation: newWedgeOrientationProperty,
-          ellipsoid: {
-            radii: new Cesium.Cartesian3(30000.0, 30000.0, 30000.0),
-            innerRadii: new Cesium.Cartesian3(10.0, 10.0, 10.0),
-            minimumClock: Cesium.Math.toRadians(-2.0),
-            maximumClock: Cesium.Math.toRadians(2.0),
-            minimumCone: Cesium.Math.toRadians(88.0),
-            maximumCone: Cesium.Math.toRadians(91.0),
-            material: Cesium.Color.RED.withAlpha(0.1),
-            outline: true,
-          },
-        })
+        // viewer.entities.add({
+        //   id: current.id + 'Scan',
+        //   name: 'Wedge',
+        //   position: property,
+        //   // position: new Cesium.CallbackProperty((time: any) => {
+        //   //   let position = property.getValue(time)
+        //   //   const orientation = newWedgeOrientationProperty.getValue(time)
+        //   //   if (!position || !orientation) {
+        //   //     return new Cesium.Cartesian3()
+        //   //   }
+        //   //   position = Cesium.Cartographic.fromCartesian(position)
+        //   //   const rotation = Cesium.HeadingPitchRoll.fromQuaternion(orientation)
+        //   //   return createROIfromRotation(position, rotation, 15000)
+        //   // }, false),
+        //   orientation: newWedgeOrientationProperty,
+        //   cylinder: {
+        //     length: 30000.0,
+        //     topRadius: 0.0,
+        //     bottomRadius: 1000.0,
+        //     material: Cesium.Color.RED.withAlpha(0.4),
+        //   },
+        //   // ellipsoid: {
+        //   //   radii: new Cesium.Cartesian3(30000.0, 30000.0, 30000.0),
+        //   //   innerRadii: new Cesium.Cartesian3(10.0, 10.0, 10.0),
+        //   //   minimumClock: Cesium.Math.toRadians(-2.0),
+        //   //   maximumClock: Cesium.Math.toRadians(2.0),
+        //   //   minimumCone: Cesium.Math.toRadians(88.0),
+        //   //   maximumCone: Cesium.Math.toRadians(91.0),
+        //   //   material: Cesium.Color.RED.withAlpha(0.1),
+        //   //   outline: true,
+        //   // },
+        // })
       }
 
       // 雷达-预警机
@@ -380,7 +396,7 @@ export const renderEntity = (
               return Cesium.Cartesian3.fromDegreesArrayHeights(result)
             }, false),
             maximumHeights: [3000, 6000],
-            minimumHeights: [6000, 0],
+            minimumHeights: [3000, 0],
             material: Cesium.Color.fromCssColorString(
               materialData.scannerColor
             ),
@@ -401,7 +417,7 @@ export const renderEntity = (
               return Cesium.Cartesian3.fromDegreesArrayHeights(result)
             }, false),
             maximumHeights: [3000, 6000],
-            minimumHeights: [6000, 0],
+            minimumHeights: [3000, 0],
             material: Cesium.Color.fromCssColorString(
               materialData.scannerColor
             ),
@@ -422,18 +438,18 @@ export const renderEntity = (
               return Cesium.Cartesian3.fromDegreesArrayHeights(result)
             }, false),
             maximumHeights: [3000, 6000],
-            minimumHeights: [6000, 0],
+            minimumHeights: [3000, 0],
             material: Cesium.Color.fromCssColorString(
               materialData.scannerColor
             ),
           },
         })
       }
-
       nextTick(() => {
         if (current.effectList) {
           current.effectList.forEach((item) => {
             if (item.type === 'AimEffect') {
+              // 导弹
               renderAimEffect(viewer, item, property, current.id)
             }
           })
