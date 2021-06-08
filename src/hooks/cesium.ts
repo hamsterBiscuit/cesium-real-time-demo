@@ -386,7 +386,7 @@ export const renderEntity = (
               )
               return Cesium.Cartesian3.fromDegreesArrayHeights(result)
             }, false),
-            maximumHeights: [6000, 6000],
+            maximumHeights: [0, 6000],
             material: Cesium.Color.fromCssColorString(
               materialData.scannerColor
             ),

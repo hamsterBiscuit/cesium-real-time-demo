@@ -138,7 +138,6 @@
     const current = viewer.value.clock.currentTime.clone()
     const result = new Cesium.JulianDate()
     Cesium.JulianDate.addSeconds(current, 5, result)
-    console.log(result)
     setCurrentTime(viewer.value, result)
   }
   const back = () => {
