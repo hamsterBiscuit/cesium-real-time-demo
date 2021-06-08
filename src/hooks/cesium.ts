@@ -331,13 +331,6 @@ export const renderEntity = (
           name: 'Wedge',
           position: property,
           orientation: newWedgeOrientationProperty,
-          // cylinder: {
-          //   length: 30000.0,
-          //   topRadius: 0.0,
-          //   bottomRadius: 3000.0,
-          //   material: Cesium.Color.RED.withAlpha(0.1),
-          // },
-
           ellipsoid: {
             radii: new Cesium.Cartesian3(30000.0, 30000.0, 30000.0),
             innerRadii: new Cesium.Cartesian3(10.0, 10.0, 10.0),
@@ -386,7 +379,50 @@ export const renderEntity = (
               )
               return Cesium.Cartesian3.fromDegreesArrayHeights(result)
             }, false),
-            maximumHeights: [0, 6000],
+            maximumHeights: [3000, 6000],
+            minimumHeights: [6000, 0],
+            material: Cesium.Color.fromCssColorString(
+              materialData.scannerColor
+            ),
+          },
+        })
+        let heading2 = 120
+        viewer.entities.add({
+          wall: {
+            positions: new Cesium.CallbackProperty((time: any) => {
+              const position = property.getValue(time)
+              heading2 += 8
+              const result = calcScanPoints(
+                position,
+                materialData.bottomRadius,
+                heading2,
+                materialData.radarHeight
+              )
+              return Cesium.Cartesian3.fromDegreesArrayHeights(result)
+            }, false),
+            maximumHeights: [3000, 6000],
+            minimumHeights: [6000, 0],
+            material: Cesium.Color.fromCssColorString(
+              materialData.scannerColor
+            ),
+          },
+        })
+        let heading3 = 240
+        viewer.entities.add({
+          wall: {
+            positions: new Cesium.CallbackProperty((time: any) => {
+              const position = property.getValue(time)
+              heading3 += 8
+              const result = calcScanPoints(
+                position,
+                materialData.bottomRadius,
+                heading3,
+                materialData.radarHeight
+              )
+              return Cesium.Cartesian3.fromDegreesArrayHeights(result)
+            }, false),
+            maximumHeights: [3000, 6000],
+            minimumHeights: [6000, 0],
             material: Cesium.Color.fromCssColorString(
               materialData.scannerColor
             ),
@@ -421,7 +457,6 @@ export const renderEntity = (
     (current.type === 1 || current.id.includes('radar')) &&
     current.effectList[0]
   ) {
-    // return
     const materialData = current.effectList[0]
 
     let heading = 0
@@ -439,7 +474,7 @@ export const renderEntity = (
         positions: new Cesium.CallbackProperty(() => {
           return Cesium.Cartesian3.fromDegreesArrayHeights(positionArr)
         }, false),
-        material: Cesium.Color.AQUAMARINE.withAlpha(0.5),
+        material: Cesium.Color.fromCssColorString(materialData.scannerColor),
       },
     })
 
@@ -456,8 +491,8 @@ export const renderEntity = (
           materialData.parabolaHeight
         ),
         maximumCone: Cesium.Math.toRadians(90),
-        material: Cesium.Color.AQUAMARINE.withAlpha(0.3),
-        outline: true,
+        material: Cesium.Color.fromCssColorString(materialData.color[1]),
+        outline: false,
         outlineColor: Cesium.Color.AQUAMARINE.withAlpha(0.5),
         outlineWidth: 1,
       },
