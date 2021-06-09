@@ -64,7 +64,7 @@ export const renderAimEffect = (
           )
         const quaternion = Cesium.Quaternion.fromRotationMatrix(rotationScratch)
         const hpr = Cesium.HeadingPitchRoll.fromQuaternion(quaternion)
-        hpr.pitch = hpr.pitch + Cesium.Math.toRadians(90)
+        hpr.pitch = hpr.pitch + Cesium.Math.toRadians(75)
         return Cesium.Quaternion.fromHeadingPitchRoll(hpr)
       } else {
         return new Cesium.Quaternion()
@@ -83,7 +83,7 @@ export const renderAimEffect = (
         }
       }, false),
       topRadius: 0.0,
-      bottomRadius: 3000.0,
+      bottomRadius: 1000.0,
       material: Cesium.Color.RED.withAlpha(0.5),
     },
   })
@@ -113,7 +113,9 @@ function renderRadarScanner(
       }, false),
       maximumHeights: [3000, 6000],
       minimumHeights: [3000, 0],
-      material: Cesium.Color.fromCssColorString(materialData.scannerColor),
+      material: materialData.scannerColor
+        ? Cesium.Color.fromCssColorString(materialData.scannerColor)
+        : Cesium.Color.fromCssColorString('rgba(255,255,0,0.2)'),
     },
   })
 }
@@ -129,7 +131,9 @@ export function renderEarlyWarningAircraftRadar(
     bottomRadius: materialData.bottomRadius,
     material: Cesium.Color.fromCssColorString(materialData.color),
     outline: true,
-    outlineColor: Cesium.Color.fromCssColorString(materialData.outlineColor),
+    outlineColor: materialData.outlineColor
+      ? Cesium.Color.fromCssColorString(materialData.outlineColor)
+      : Cesium.Color.fromCssColorString(materialData.color),
   } as any
 
   renderRadarScanner(viewer, entity, materialData, 0)

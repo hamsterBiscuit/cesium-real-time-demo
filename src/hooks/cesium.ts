@@ -5,7 +5,7 @@ import {
   renderAimEffect,
   renderEarlyWarningAircraftRadar,
 } from './renderEneity'
-import { calcPoints, calcScanPoints } from './radar'
+import { calcPoints } from './radar'
 import { PolylineTrailLinkMaterialProperty } from '../material/trailLink'
 import '../../node_modules/cesium/Build/Cesium/Widgets/widgets.css'
 
@@ -131,10 +131,6 @@ export const renderEntity = (
       const orientationProperty = new Cesium.VelocityOrientationProperty(
         property
       )
-      // 预警雷达
-      const newOrientationProperty = new Cesium.SampledProperty(
-        Cesium.Quaternion
-      )
       // 模型
       const modelOrientationProperty = new Cesium.SampledProperty(
         Cesium.Quaternion
@@ -146,27 +142,7 @@ export const renderEntity = (
         const o = Cesium.HeadingPitchRoll.fromQuaternion(orientation)
 
         const q = Cesium.Quaternion.fromHeadingPitchRoll(o)
-        newOrientationProperty.addSample(time, orientation)
         modelOrientationProperty.addSample(time, orientation)
-      })
-      // 火控雷达数据
-      const newWedgeOrientationProperty = new Cesium.SampledProperty(
-        Cesium.Quaternion
-      )
-      res.path.forEach((i, index) => {
-        const time = Cesium.JulianDate.fromDate(new Date(i.time))
-        const orientation = orientationProperty.getValue(time)
-        if (!orientation) return
-        const o = Cesium.HeadingPitchRoll.fromQuaternion(orientation)
-        if (index % 2) {
-          o.heading += Cesium.Math.toRadians(10.0)
-        } else {
-          o.heading += Cesium.Math.toRadians(-10.0)
-        }
-        o.pitch += Cesium.Math.toRadians(90.0)
-
-        const q = Cesium.Quaternion.fromHeadingPitchRoll(o)
-        newWedgeOrientationProperty.addSample(time, q)
       })
       // 3D model
       entity.position = property
@@ -210,11 +186,11 @@ export const renderEntity = (
         } as any
       }
 
-      current.effectList.forEach((item) => {
-        if (item.id.includes('Radar')) {
+      current.effectList?.forEach((i) => {
+        if (i.id.includes('Radar')) {
           // 雷达-预警机
-          const materialData = current.effectList[0]
-          renderEarlyWarningAircraftRadar(viewer, entity, materialData)
+          const materialData = i
+          renderEarlyWarningAircraftRadar(viewer, entity, i)
         }
       })
       nextTick(() => {
@@ -256,7 +232,6 @@ export const renderEntity = (
       heading,
       materialData.parabolaHeight
     )
-
     const entity = viewer.entities.add({
       wall: {
         positions: new Cesium.CallbackProperty(() => {
@@ -265,7 +240,6 @@ export const renderEntity = (
         material: Cesium.Color.fromCssColorString(materialData.scannerColor),
       },
     })
-
     viewer.entities.add({
       position: Cesium.Cartesian3.fromDegrees(
         current.position[0],
