@@ -18,12 +18,12 @@
   import * as Cesium from 'cesium'
   import {
     initCesium,
-    clickCesium,
     setStartAndEndTime,
     setCurrentTime,
     renderEntity,
-    changeCameraHeight,
   } from './hooks/cesium'
+  import { changeCameraHeight, clickCesium } from './hooks/cesiumEvent'
+
   import { useLoadSceneDeply, useLoadEntity } from './hooks/loadData'
 
   // const Cesium = (window as any).Cesium

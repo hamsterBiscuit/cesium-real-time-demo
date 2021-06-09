@@ -1,16 +1,13 @@
 import { ref, onMounted, nextTick } from 'vue'
 import type { Ref } from 'vue'
 import * as Cesium from 'cesium'
-import { calcPoints, calcScanPoints, createROIfromRotation } from './radar.js'
-import { disTance } from './calc.js'
+import { renderAimEffect } from './renderEneity'
+import { calcPoints, calcScanPoints } from './radar'
+import { PolylineTrailLinkMaterialProperty } from '../material/trailLink'
 import '../../node_modules/cesium/Build/Cesium/Widgets/widgets.css'
 
-import { MobileList, PathRes, EffectList } from './interface'
+import { MobileList, PathRes } from './interface'
 import { loadData } from './loadData'
-
-// const Cesium = (window as any).Cesium
-
-// The URL on your server where CesiumJS's static files are hosted.
 
 export const initCesium = (): Ref<Cesium.Viewer> | Ref<undefined> => {
   //wmts?layer=uav_amap%3Aggdt&style=&tilematrixset=EPSG%3A4326&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image%2Fpng&TileMatrix=EPSG%3A4326%3A6&TileCol=105&TileRow=13
@@ -29,9 +26,6 @@ export const initCesium = (): Ref<Cesium.Viewer> | Ref<undefined> => {
     style: '',
     format: 'image/png',
     tileMatrixSetID: 'EPSG:3857',
-    // tileMatrixLabels : ['default028mm:0', 'default028mm:1', 'default028mm:2' ...],
-    // maximumLevel: 19,
-    // credit : new Cesium.Credit('U. S. Geological Survey')
   })
 
   const terrainLayer = new Cesium.CesiumTerrainProvider({
@@ -81,135 +75,6 @@ export const setStartAndEndTime = (
 // 设置当前时间
 export const setCurrentTime = (viewer: Cesium.Viewer, time: string): void => {
   viewer.clock.currentTime = Cesium.JulianDate.fromDate(new Date(time)).clone()
-}
-
-// 左键点击事件
-export const clickCesium = (viewer: Ref<Cesium.Viewer>): void => {
-  viewer.value.screenSpaceEventHandler.setInputAction((movement) => {
-    const pickedLabel = viewer.value.scene.pick(movement.position)
-    const cartesian = viewer.value.camera.pickEllipsoid(
-      movement.position,
-      viewer.value.scene.globe.ellipsoid
-    )
-    console.log(cartesian)
-    const cartographic =
-      viewer.value.scene.globe.ellipsoid.cartesianToCartographic(
-        cartesian as Cesium.Cartesian3
-      )
-    //将弧度转为度的十进制度表示
-    const longitudeString = Cesium.Math.toDegrees(cartographic.longitude)
-    const latitudeString = Cesium.Math.toDegrees(cartographic.latitude)
-    console.log([longitudeString, latitudeString])
-  }, Cesium.ScreenSpaceEventType.LEFT_CLICK)
-}
-
-function changeEntityModel(viewer: Ref<Cesium.Viewer>, mode: 'model' | 'img') {
-  viewer.value.entities.values.forEach((entity) => {
-    if (entity.billboard && entity.model) {
-      entity.billboard.show = mode === 'img'
-      entity.model.show = mode === 'model'
-    }
-  })
-}
-
-export const changeCameraHeight = (viewer: Ref<Cesium.Viewer>): void => {
-  const handler = new Cesium.ScreenSpaceEventHandler(viewer.value.scene.canvas)
-  const benchmark = 200000
-  let isHigh = true
-  handler.setInputAction(function (wheelment) {
-    const height = viewer.value.camera.positionCartographic.height
-    if (height > benchmark && !isHigh) {
-      isHigh = !isHigh
-      changeEntityModel(viewer, 'img')
-    } else if (height < benchmark && isHigh) {
-      isHigh = !isHigh
-      changeEntityModel(viewer, 'model')
-    }
-  }, Cesium.ScreenSpaceEventType.WHEEL)
-}
-
-// 绘制火控雷达
-export const renderAimEffect = (
-  viewer: Cesium.Viewer,
-  current: EffectList,
-  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-  position: any,
-  currentId: string
-): void => {
-  function getPosition(time: any) {
-    const destEntity = viewer.entities.getById(current.destID)
-    let currentPosition
-    let destPosition
-    if (position.getValue) {
-      currentPosition = position.getValue(time)
-    } else {
-      currentPosition = position
-    }
-    if (destEntity?.position?.getValue) {
-      destPosition = destEntity.position.getValue(time)
-    } else {
-      destPosition = destEntity?.position
-    }
-    return { currentPosition, destPosition }
-  }
-  // 画线 火控雷达
-  viewer.entities.add({
-    id: current.id + currentId,
-    name: current.id,
-    show: false,
-    position: new Cesium.CallbackProperty((time: any) => {
-      const { currentPosition, destPosition } = getPosition(time)
-      if (destPosition && currentPosition) {
-        return Cesium.Cartesian3.midpoint(
-          destPosition as Cesium.Cartesian3,
-          currentPosition,
-          new Cesium.Cartesian3()
-        )
-      } else {
-        return new Cesium.Cartesian3()
-      }
-    }, false),
-    orientation: new Cesium.CallbackProperty((time: any) => {
-      const { currentPosition, destPosition } = getPosition(time)
-      if (destPosition && currentPosition) {
-        const velocityResult = new Cesium.Cartesian3()
-        const velocity = Cesium.Cartesian3.subtract(
-          destPosition as Cesium.Cartesian3,
-          currentPosition,
-          velocityResult
-        )
-        const value = Cesium.Cartesian3.normalize(velocity, velocityResult)
-
-        const rotationScratch =
-          Cesium.Transforms.rotationMatrixFromPositionVelocity(
-            currentPosition,
-            value
-          )
-        const quaternion = Cesium.Quaternion.fromRotationMatrix(rotationScratch)
-        const hpr = Cesium.HeadingPitchRoll.fromQuaternion(quaternion)
-        hpr.pitch = hpr.pitch + Cesium.Math.toRadians(90)
-        return Cesium.Quaternion.fromHeadingPitchRoll(hpr)
-      } else {
-        return new Cesium.Quaternion()
-      }
-    }, false),
-    cylinder: {
-      length: new Cesium.CallbackProperty((time: any) => {
-        const { currentPosition, destPosition } = getPosition(time)
-        if (destPosition && currentPosition) {
-          return Cesium.Cartesian3.distance(
-            destPosition as Cesium.Cartesian3,
-            currentPosition
-          )
-        } else {
-          return 0
-        }
-      }, false),
-      topRadius: 0.0,
-      bottomRadius: 3000.0,
-      material: Cesium.Color.RED.withAlpha(0.5),
-    },
-  })
 }
 
 // render Entity
@@ -324,8 +189,9 @@ export const renderEntity = (
       entity.position = property
       entity.orientation = modelOrientationProperty
 
-      // 航迹
-      if (!current.id.includes('Missile')) {
+      // 航迹 暂时去掉
+      // eslint-disable-next-line no-constant-condition
+      if (!current.id.includes('Missile') && false) {
         entity.availability = new Cesium.TimeIntervalCollection([
           new Cesium.TimeInterval({
             start: Cesium.JulianDate.fromDate(new Date(res.path[0].time)),
@@ -335,16 +201,18 @@ export const renderEntity = (
           }),
         ])
         entity.path = {
-          resolution: 1,
-          leadTime: 0,
+          resolution: new Cesium.ConstantProperty(1),
+          leadTime: new Cesium.ConstantProperty(0),
           material: new Cesium.PolylineGlowMaterialProperty({
             glowPower: 0.3,
             taperPower: 0.3,
             color: Cesium.Color.LIGHTBLUE.withAlpha(0.5),
           }),
-          width: 10,
+          width: new Cesium.ConstantProperty(10),
         }
-        // 预警雷达
+      }
+      // 预警雷达
+      if (!current.id.includes('Missile')) {
         viewer.entities.add({
           id: current.id + 'Scan',
           name: 'Wedge',
@@ -361,40 +229,6 @@ export const renderEntity = (
             outline: true,
           },
         })
-
-        // 预警雷达-扫描雷达
-        // viewer.entities.add({
-        //   id: current.id + 'Scan',
-        //   name: 'Wedge',
-        //   position: property,
-        //   // position: new Cesium.CallbackProperty((time: any) => {
-        //   //   let position = property.getValue(time)
-        //   //   const orientation = newWedgeOrientationProperty.getValue(time)
-        //   //   if (!position || !orientation) {
-        //   //     return new Cesium.Cartesian3()
-        //   //   }
-        //   //   position = Cesium.Cartographic.fromCartesian(position)
-        //   //   const rotation = Cesium.HeadingPitchRoll.fromQuaternion(orientation)
-        //   //   return createROIfromRotation(position, rotation, 15000)
-        //   // }, false),
-        //   orientation: newWedgeOrientationProperty,
-        //   cylinder: {
-        //     length: 30000.0,
-        //     topRadius: 0.0,
-        //     bottomRadius: 1000.0,
-        //     material: Cesium.Color.RED.withAlpha(0.4),
-        //   },
-        //   // ellipsoid: {
-        //   //   radii: new Cesium.Cartesian3(30000.0, 30000.0, 30000.0),
-        //   //   innerRadii: new Cesium.Cartesian3(10.0, 10.0, 10.0),
-        //   //   minimumClock: Cesium.Math.toRadians(-2.0),
-        //   //   maximumClock: Cesium.Math.toRadians(2.0),
-        //   //   minimumCone: Cesium.Math.toRadians(88.0),
-        //   //   maximumCone: Cesium.Math.toRadians(91.0),
-        //   //   material: Cesium.Color.RED.withAlpha(0.1),
-        //   //   outline: true,
-        //   // },
-        // })
       }
 
       // 雷达-预警机
@@ -426,9 +260,9 @@ export const renderEntity = (
               heading += 8
               const result = calcScanPoints(
                 position,
-                materialData.bottomRadius,
+                materialData.bottomRadius || 0,
                 heading,
-                materialData.radarHeight
+                materialData.radarHeight || 0
               )
               return Cesium.Cartesian3.fromDegreesArrayHeights(result)
             }, false),
@@ -447,9 +281,9 @@ export const renderEntity = (
               heading2 += 8
               const result = calcScanPoints(
                 position,
-                materialData.bottomRadius,
+                materialData.bottomRadius ?? 0,
                 heading2,
-                materialData.radarHeight
+                materialData.radarHeight ?? 0
               )
               return Cesium.Cartesian3.fromDegreesArrayHeights(result)
             }, false),
@@ -468,9 +302,9 @@ export const renderEntity = (
               heading3 += 8
               const result = calcScanPoints(
                 position,
-                materialData.bottomRadius,
+                materialData.bottomRadius ?? 0,
                 heading3,
-                materialData.radarHeight
+                materialData.radarHeight ?? 0
               )
               return Cesium.Cartesian3.fromDegreesArrayHeights(result)
             }, false),
@@ -517,7 +351,7 @@ export const renderEntity = (
     let positionArr = calcPoints(
       current.position[0],
       current.position[1],
-      materialData.parabolaRadius,
+      materialData.parabolaRadius ?? 0,
       heading,
       materialData.parabolaHeight
     )
@@ -557,122 +391,13 @@ export const renderEntity = (
       positionArr = calcPoints(
         current.position[0],
         current.position[1],
-        materialData.parabolaRadius,
+        materialData.parabolaRadius ?? 0,
         heading,
         materialData.parabolaHeight
       )
     })
-
-    // test
-    // Define the trajectory dynamic line texture of the line -->
-    function PolylineTrailLinkMaterialProperty(color, duration) {
-      this._definitionChanged = new Cesium.Event()
-      this._color = undefined
-      this._colorSubscription = undefined
-      this.color = color
-      this.duration = duration
-      this._time = new Date().getTime()
-    }
-    Object.defineProperties(PolylineTrailLinkMaterialProperty.prototype, {
-      isConstant: {
-        get: function () {
-          return false
-        },
-      },
-      definitionChanged: {
-        get: function () {
-          return this._definitionChanged
-        },
-      },
-      color: Cesium.createPropertyDescriptor('color'),
-    })
-    PolylineTrailLinkMaterialProperty.prototype.getType = function (time) {
-      return 'PolylineTrailLink'
-    }
-    PolylineTrailLinkMaterialProperty.prototype.getValue = function (
-      time,
-      result
-    ) {
-      if (!Cesium.defined(result)) {
-        result = {}
-      }
-      result.color = Cesium.Property.getValueOrClonedDefault(
-        this._color,
-        time,
-        Cesium.Color.WHITE,
-        result.color
-      )
-      result.image = Cesium.Material.PolylineTrailLinkImage
-      result.time =
-        ((new Date().getTime() - this._time) % this.duration) / this.duration
-      return result
-    }
-    PolylineTrailLinkMaterialProperty.prototype.equals = function (other) {
-      return (
-        this === other ||
-        (other instanceof PolylineTrailLinkMaterialProperty &&
-          Property.equals(this._color, other._color))
-      )
-    }
-    // Mount the relevant flow line texture on Material, which can be encapsulated according to your needs
-    Cesium.Material.PolylineTrailLinkType = 'PolylineTrailLink'
-    Cesium.Material.PolylineTrailLinkImage =
-      Cesium.buildModuleUrl('/img/line.jpg')
-    // Define the core part of the shader source code
-    //   Cesium.Material.PolylineTrailLinkSource =
-    //     'czm_material czm_getMaterial(czm_materialInput materialInput)\n\
-    // {\n\
-    //     czm_material material = czm_getDefaultMaterial(materialInput);\n\
-    //     vec2 st = materialInput.st;\n\
-    //     vec4 colorImage = texture2D(image, vec2(fract(st.s - time), st.t));\n\
-    //     material.alpha = colorImage.a;\n\
-    //     material.diffuse = colorImage.rgb;\n\
-    //     return material;\n\
-    // }'
-    Cesium.Material.PolylineTrailLinkSource =
-      'czm_material czm_getMaterial(czm_materialInput materialInput)\n\
-                                                      {\n\
-                                                           czm_material material = czm_getDefaultMaterial(materialInput);\n\
-                                                           vec2 st = materialInput.st;\n\
-                                                           vec4 colorImage = texture2D(image, vec2(fract(st.s - time), st.t));\n\
-                                                           material.alpha = colorImage.a * color.a;\n\
-                                                           material.diffuse = (colorImage.rgb+color.rgb)/2.0;\n\
-                                                           return material;\n\
-                                                       }'
-    Cesium.Material._materialCache.addMaterial(
-      Cesium.Material.PolylineTrailLinkType,
-      {
-        fabric: {
-          type: Cesium.Material.PolylineTrailLinkType,
-          uniforms: {
-            color: new Cesium.Color(1.0, 0.0, 0.0, 0.5),
-            image: Cesium.Material.PolylineTrailLinkImage,
-            time: 0,
-          },
-          source: Cesium.Material.PolylineTrailLinkSource,
-        },
-        translucent: function (material) {
-          return true
-        },
-      }
-    )
-    // test part
-    // Calculate the rounded point at the inflection point
-    function computeCircle(radius) {
-      var positions = []
-      for (var i = 0; i < 360; i++) {
-        var radians = Cesium.Math.toRadians(i)
-        positions.push(
-          new Cesium.Cartesian2(
-            radius * Math.cos(radians),
-            radius * Math.sin(radians)
-          )
-        )
-      }
-      return positions
-    }
     // Add a polyline tube
-    var polylineTrail = viewer.entities.add({
+    viewer.entities.add({
       name: 'PolylineTrail',
       polyline: {
         positions: Cesium.Cartesian3.fromDegreesArrayHeights([
@@ -680,47 +405,50 @@ export const renderEntity = (
           108.949322, 34.130466, 0.0,
         ]),
         width: 2,
-        material: new PolylineTrailLinkMaterialProperty(Cesium.Color.WHITE, 1000),
+        material: new PolylineTrailLinkMaterialProperty(
+          Cesium.Color.WHITE,
+          1000
+        ),
       },
     })
   }
 }
 
 // 第一人称
-export const firstCamera = (viewer: Cesium.Viewer, entityId) => {
-  viewer.scene.postUpdate.addEventListener((__, time) => {
-    entityList.forEach((entity, index) => {
-      const orientation = entity.orientation.getValue(time)
-      const headingPitchRoll = new Cesium.HeadingPitchRoll()
-      Cesium.HeadingPitchRoll.fromQuaternion(orientation, headingPitchRoll)
-      const position = entity.position.getValue(time)
-      const degrees = cartesianToDegrees(position)
-      entity.label.text = `${
-        entity.name
-      }\nlongitude:${degrees.longitude.toFixed(
-        4
-      )}\nlatitude:${degrees.latitude.toFixed(4)}`
-      if (index === 0) {
-        const transform = Cesium.Matrix4.fromRotationTranslation(
-          Cesium.Matrix3.fromQuaternion(orientation),
-          position
-        )
-        const comput = new Cesium.Cartesian3()
-        Cesium.Cartesian3.add(
-          position,
-          new Cesium.Cartesian3(0.0, 0, 0),
-          comput
-        )
-        const hpr = Cesium.Transforms.fixedFrameToHeadingPitchRoll(transform)
-        viewer.camera.setView({
-          destination: comput,
-          orientation: {
-            heading: hpr.heading + Cesium.Math.toRadians(90.0),
-            roll: hpr.roll,
-            pitch: hpr.pitch,
-          },
-        })
-      }
-    })
-  })
-}
+// export const firstCamera = (viewer: Cesium.Viewer, entityId) => {
+//   viewer.scene.postUpdate.addEventListener((__, time) => {
+//     entityList.forEach((entity, index) => {
+//       const orientation = entity.orientation.getValue(time)
+//       const headingPitchRoll = new Cesium.HeadingPitchRoll()
+//       Cesium.HeadingPitchRoll.fromQuaternion(orientation, headingPitchRoll)
+//       const position = entity.position.getValue(time)
+//       const degrees = cartesianToDegrees(position)
+//       entity.label.text = `${
+//         entity.name
+//       }\nlongitude:${degrees.longitude.toFixed(
+//         4
+//       )}\nlatitude:${degrees.latitude.toFixed(4)}`
+//       if (index === 0) {
+//         const transform = Cesium.Matrix4.fromRotationTranslation(
+//           Cesium.Matrix3.fromQuaternion(orientation),
+//           position
+//         )
+//         const comput = new Cesium.Cartesian3()
+//         Cesium.Cartesian3.add(
+//           position,
+//           new Cesium.Cartesian3(0.0, 0, 0),
+//           comput
+//         )
+//         const hpr = Cesium.Transforms.fixedFrameToHeadingPitchRoll(transform)
+//         viewer.camera.setView({
+//           destination: comput,
+//           orientation: {
+//             heading: hpr.heading + Cesium.Math.toRadians(90.0),
+//             roll: hpr.roll,
+//             pitch: hpr.pitch,
+//           },
+//         })
+//       }
+//     })
+//   })
+// }
