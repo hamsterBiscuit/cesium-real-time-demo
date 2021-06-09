@@ -1,4 +1,5 @@
 import * as Cesium from 'cesium'
+import { calcScanPoints } from './radar'
 import { EffectList } from './interface'
 
 // 绘制火控雷达
@@ -86,4 +87,52 @@ export const renderAimEffect = (
       material: Cesium.Color.RED.withAlpha(0.5),
     },
   })
+}
+
+function renderRadarScanner(
+  viewer: Cesium.Viewer,
+  entity: Cesium.Entity,
+  materialData: EffectList,
+  heading: number
+) {
+  viewer.entities.add({
+    wall: {
+      positions: new Cesium.CallbackProperty((time: any) => {
+        const position = entity.position?.getValue(time)
+        if (!position) {
+          return new Cesium.Cartesian3()
+        }
+        heading += 8
+        const result = calcScanPoints(
+          position,
+          materialData.bottomRadius || 0,
+          heading,
+          materialData.radarHeight || 0
+        )
+        return Cesium.Cartesian3.fromDegreesArrayHeights(result)
+      }, false),
+      maximumHeights: [3000, 6000],
+      minimumHeights: [3000, 0],
+      material: Cesium.Color.fromCssColorString(materialData.scannerColor),
+    },
+  })
+}
+
+export function renderEarlyWarningAircraftRadar(
+  viewer: Cesium.Viewer,
+  entity: Cesium.Entity,
+  materialData: EffectList
+): void {
+  entity.cylinder = {
+    length: materialData.radarHeight,
+    topRadius: materialData.bottomRadius,
+    bottomRadius: materialData.bottomRadius,
+    material: Cesium.Color.fromCssColorString(materialData.color),
+    outline: true,
+    outlineColor: Cesium.Color.fromCssColorString(materialData.outlineColor),
+  } as any
+
+  renderRadarScanner(viewer, entity, materialData, 0)
+  renderRadarScanner(viewer, entity, materialData, 120)
+  renderRadarScanner(viewer, entity, materialData, 240)
 }

@@ -1,7 +1,10 @@
 import { ref, onMounted, nextTick } from 'vue'
 import type { Ref } from 'vue'
 import * as Cesium from 'cesium'
-import { renderAimEffect } from './renderEneity'
+import {
+  renderAimEffect,
+  renderEarlyWarningAircraftRadar,
+} from './renderEneity'
 import { calcPoints, calcScanPoints } from './radar'
 import { PolylineTrailLinkMaterialProperty } from '../material/trailLink'
 import '../../node_modules/cesium/Build/Cesium/Widgets/widgets.css'
@@ -123,10 +126,6 @@ export const renderEntity = (
         )
         property.addSample(time, position)
       })
-      property.setInterpolationOptions({
-        interpolationDegree: 1,
-        interpolationAlgorithm: Cesium.LinearApproximation,
-      })
 
       // 原始方向数据
       const orientationProperty = new Cesium.VelocityOrientationProperty(
@@ -145,13 +144,10 @@ export const renderEntity = (
         const orientation = orientationProperty.getValue(time)
         if (!orientation) return
         const o = Cesium.HeadingPitchRoll.fromQuaternion(orientation)
-        // o.heading += Cesium.Math.PI_OVER_TWO
-        // const matrix4 = Cesium.Matrix4.fro
 
         const q = Cesium.Quaternion.fromHeadingPitchRoll(o)
         newOrientationProperty.addSample(time, orientation)
         modelOrientationProperty.addSample(time, orientation)
-        // modelOrientationProperty.addSample(time, q)
       })
       // 火控雷达数据
       const newWedgeOrientationProperty = new Cesium.SampledProperty(
@@ -171,19 +167,6 @@ export const renderEntity = (
 
         const q = Cesium.Quaternion.fromHeadingPitchRoll(o)
         newWedgeOrientationProperty.addSample(time, q)
-      })
-
-      newOrientationProperty.setInterpolationOptions({
-        interpolationDegree: 1,
-        interpolationAlgorithm: Cesium.LinearApproximation,
-      })
-      modelOrientationProperty.setInterpolationOptions({
-        interpolationDegree: 1,
-        interpolationAlgorithm: Cesium.LinearApproximation,
-      })
-      newWedgeOrientationProperty.setInterpolationOptions({
-        interpolationDegree: 1,
-        interpolationAlgorithm: Cesium.LinearApproximation,
       })
       // 3D model
       entity.position = property
@@ -213,109 +196,27 @@ export const renderEntity = (
       }
       // 预警雷达
       if (!current.id.includes('Missile')) {
-        viewer.entities.add({
-          id: current.id + 'Scan',
-          name: 'Wedge',
-          position: property,
-          orientation: newOrientationProperty,
-          ellipsoid: {
-            radii: new Cesium.Cartesian3(30000.0, 30000.0, 30000.0),
-            innerRadii: new Cesium.Cartesian3(10.0, 10.0, 10.0),
-            minimumClock: Cesium.Math.toRadians(-10.0),
-            maximumClock: Cesium.Math.toRadians(10.0),
-            minimumCone: Cesium.Math.toRadians(80.0),
-            maximumCone: Cesium.Math.toRadians(100.0),
-            material: Cesium.Color.AQUA.withAlpha(0.3),
-            outline: true,
-          },
-        })
+        entity.ellipsoid = {
+          radii: new Cesium.Cartesian3(30000.0, 30000.0, 30000.0),
+          innerRadii: new Cesium.Cartesian3(10.0, 10.0, 10.0),
+          minimumClock: Cesium.Math.toRadians(-10.0),
+          maximumClock: Cesium.Math.toRadians(10.0),
+          minimumCone: Cesium.Math.toRadians(80.0),
+          maximumCone: Cesium.Math.toRadians(100.0),
+          material: Cesium.Color.AQUA.withAlpha(0.3),
+          outline: true,
+          outlineColor: Cesium.Color.BLACK.withAlpha(0.3),
+          outlineWidth: 2,
+        } as any
       }
 
-      // 雷达-预警机
-      if (
-        current.effectList?.[0]?.id.includes('Radar') &&
-        current.effectList[0]
-      ) {
-        const materialData = current.effectList[0]
-        // 圆柱
-        viewer.entities.add({
-          position: property,
-          cylinder: {
-            length: materialData.radarHeight,
-            topRadius: materialData.bottomRadius,
-            bottomRadius: materialData.bottomRadius,
-            material: Cesium.Color.fromCssColorString(materialData.color),
-            outline: true,
-            outlineColor: Cesium.Color.fromCssColorString(
-              materialData.outlineColor
-            ),
-          },
-        })
-
-        let heading = 0
-        viewer.entities.add({
-          wall: {
-            positions: new Cesium.CallbackProperty((time: any) => {
-              const position = property.getValue(time)
-              heading += 8
-              const result = calcScanPoints(
-                position,
-                materialData.bottomRadius || 0,
-                heading,
-                materialData.radarHeight || 0
-              )
-              return Cesium.Cartesian3.fromDegreesArrayHeights(result)
-            }, false),
-            maximumHeights: [3000, 6000],
-            minimumHeights: [3000, 0],
-            material: Cesium.Color.fromCssColorString(
-              materialData.scannerColor
-            ),
-          },
-        })
-        let heading2 = 120
-        viewer.entities.add({
-          wall: {
-            positions: new Cesium.CallbackProperty((time: any) => {
-              const position = property.getValue(time)
-              heading2 += 8
-              const result = calcScanPoints(
-                position,
-                materialData.bottomRadius ?? 0,
-                heading2,
-                materialData.radarHeight ?? 0
-              )
-              return Cesium.Cartesian3.fromDegreesArrayHeights(result)
-            }, false),
-            maximumHeights: [3000, 6000],
-            minimumHeights: [3000, 0],
-            material: Cesium.Color.fromCssColorString(
-              materialData.scannerColor
-            ),
-          },
-        })
-        let heading3 = 240
-        viewer.entities.add({
-          wall: {
-            positions: new Cesium.CallbackProperty((time: any) => {
-              const position = property.getValue(time)
-              heading3 += 8
-              const result = calcScanPoints(
-                position,
-                materialData.bottomRadius ?? 0,
-                heading3,
-                materialData.radarHeight ?? 0
-              )
-              return Cesium.Cartesian3.fromDegreesArrayHeights(result)
-            }, false),
-            maximumHeights: [3000, 6000],
-            minimumHeights: [3000, 0],
-            material: Cesium.Color.fromCssColorString(
-              materialData.scannerColor
-            ),
-          },
-        })
-      }
+      current.effectList.forEach((item) => {
+        if (item.id.includes('Radar')) {
+          // 雷达-预警机
+          const materialData = current.effectList[0]
+          renderEarlyWarningAircraftRadar(viewer, entity, materialData)
+        }
+      })
       nextTick(() => {
         if (current.effectList) {
           current.effectList.forEach((item) => {
