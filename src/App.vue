@@ -40,6 +40,7 @@
     setInterval(() => {
       value.eventCommands.forEach((item) => {
         item.method?.forEach((i) => {
+          // 火控雷达效果
           if (
             i.parameters?.strEffectID?.includes('aim') &&
             typeof i.parameters.visible === 'boolean'
@@ -53,12 +54,25 @@
               )
               // 扫描雷达
               const scanEntity = viewer.value.entities.getById(
-                i.parameters?.strEntityID + 'Scan'
+                i.parameters?.strEntityID
               )
               if (entity) {
                 entity.show = i.parameters?.visible
-                if (!scanEntity) return
-                scanEntity.show = !i.parameters?.visible
+                if (!scanEntity && !scanEntity.ellipsoid) return
+                scanEntity.ellipsoid.show = !i.parameters?.visible
+              }
+            }
+          }
+          if (i.parameters?.strEffectID?.includes('dynnamicLineEffect')) {
+            const time = Cesium.JulianDate.fromDate(new Date(item.currentTime))
+            const currentTime = viewer.value.clock.currentTime.clone()
+            // 对比时间
+            if (Cesium.JulianDate.equalsEpsilon(time, currentTime, 1)) {
+              const entity = viewer.value.entities.getById(
+                i.parameters?.strEntityID + i.parameters?.strEffectID
+              )
+              if (entity) {
+                entity.show = i.parameters?.visible
               }
             }
           }

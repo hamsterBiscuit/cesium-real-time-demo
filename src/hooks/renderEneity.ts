@@ -173,7 +173,7 @@ export function renderDynnamicLine(
   const currentEntity = viewer.entities.add({
     id: '' + entity.id + current.id,
     name: current.id,
-    show: true,
+    show: false,
     polyline: {
       positions: new Cesium.CallbackProperty((time: Cesium.JulianDate) => {
         if (!currentEntity.show) {
@@ -189,14 +189,7 @@ export function renderDynnamicLine(
           const destDegrees = Cesium.Cartographic.fromCartesian(
             destPosition as Cesium.Cartesian3
           )
-          return Cesium.Cartesian3.fromDegreesArrayHeights([
-            Cesium.Math.toDegrees(currentDegrees.longitude),
-            Cesium.Math.toDegrees(currentDegrees.latitude),
-            currentDegrees.height,
-            Cesium.Math.toDegrees(destDegrees.longitude),
-            Cesium.Math.toDegrees(destDegrees.latitude),
-            destDegrees.height,
-          ])
+          return [currentPosition, destPosition]
         } else {
           return Cesium.Cartesian3.fromDegreesArrayHeights(
             current.positions.flat()
