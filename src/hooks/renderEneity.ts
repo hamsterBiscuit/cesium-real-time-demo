@@ -1,6 +1,7 @@
 import * as Cesium from 'cesium'
 import { calcScanPoints } from './radar'
 import { EffectList } from './interface'
+import { PolylineTrailLinkMaterialProperty } from '../material/trailLink'
 
 // 绘制火控雷达
 export const renderAimEffect = (
@@ -89,6 +90,7 @@ export const renderAimEffect = (
   })
 }
 
+// 预警机雷达扇片
 function renderRadarScanner(
   viewer: Cesium.Viewer,
   entity: Cesium.Entity,
@@ -100,7 +102,7 @@ function renderRadarScanner(
       positions: new Cesium.CallbackProperty((time: any) => {
         const position = entity.position?.getValue(time)
         if (!position) {
-          return new Cesium.Cartesian3()
+          return undefined
         }
         heading += 8
         const result = calcScanPoints(
@@ -120,6 +122,7 @@ function renderRadarScanner(
   })
 }
 
+// 预警机雷达
 export function renderEarlyWarningAircraftRadar(
   viewer: Cesium.Viewer,
   entity: Cesium.Entity,
@@ -139,4 +142,69 @@ export function renderEarlyWarningAircraftRadar(
   renderRadarScanner(viewer, entity, materialData, 0)
   renderRadarScanner(viewer, entity, materialData, 120)
   renderRadarScanner(viewer, entity, materialData, 240)
+}
+
+// 流动线
+export function renderDynnamicLine(
+  viewer: Cesium.Viewer,
+  entity: Cesium.Entity,
+  current: EffectList
+): void {
+  let destEntity = viewer.entities.getById(current.destID)
+  function getPosition(time: any) {
+    if (!destEntity) {
+      destEntity = viewer.entities.getById(current.destID)
+    }
+    let currentPosition
+    let destPosition
+    if (entity?.position?.getValue) {
+      currentPosition = entity.position.getValue(time)
+    } else {
+      currentPosition = entity.position
+    }
+    if (destEntity?.position?.getValue) {
+      destPosition = destEntity.position.getValue(time)
+    } else {
+      destPosition = destEntity?.position
+    }
+    return { currentPosition, destPosition }
+  }
+
+  const currentEntity = viewer.entities.add({
+    id: '' + entity.id + current.id,
+    name: current.id,
+    show: true,
+    polyline: {
+      positions: new Cesium.CallbackProperty((time: Cesium.JulianDate) => {
+        if (!currentEntity.show) {
+          return Cesium.Cartesian3.fromDegreesArrayHeights(
+            current.positions.flat()
+          )
+        }
+        const { currentPosition, destPosition } = getPosition(time)
+        if (currentPosition && destPosition) {
+          const currentDegrees = Cesium.Cartographic.fromCartesian(
+            currentPosition as Cesium.Cartesian3
+          )
+          const destDegrees = Cesium.Cartographic.fromCartesian(
+            destPosition as Cesium.Cartesian3
+          )
+          return Cesium.Cartesian3.fromDegreesArrayHeights([
+            Cesium.Math.toDegrees(currentDegrees.longitude),
+            Cesium.Math.toDegrees(currentDegrees.latitude),
+            currentDegrees.height,
+            Cesium.Math.toDegrees(destDegrees.longitude),
+            Cesium.Math.toDegrees(destDegrees.latitude),
+            destDegrees.height,
+          ])
+        } else {
+          return Cesium.Cartesian3.fromDegreesArrayHeights(
+            current.positions.flat()
+          )
+        }
+      }, false),
+      width: 2,
+      material: new PolylineTrailLinkMaterialProperty(Cesium.Color.WHITE, 1000),
+    },
+  })
 }

@@ -4,9 +4,9 @@ import * as Cesium from 'cesium'
 import {
   renderAimEffect,
   renderEarlyWarningAircraftRadar,
+  renderDynnamicLine,
 } from './renderEneity'
 import { calcPoints } from './radar'
-import { PolylineTrailLinkMaterialProperty } from '../material/trailLink'
 import '../../node_modules/cesium/Build/Cesium/Widgets/widgets.css'
 
 import { MobileList, PathRes } from './interface'
@@ -216,6 +216,12 @@ export const renderEntity = (
     })
   }
 
+  current.effectList?.forEach((i) => {
+    if (i.id.includes('dynnamicLineEffect')) {
+      renderDynnamicLine(viewer, entity, i)
+    }
+  })
+
   // 地面雷达
   if (
     (current.type === 1 || current.id.includes('radar')) &&
@@ -272,20 +278,20 @@ export const renderEntity = (
       )
     })
     // Add a polyline tube
-    viewer.entities.add({
-      name: 'PolylineTrail',
-      polyline: {
-        positions: Cesium.Cartesian3.fromDegreesArrayHeights([
-          108.15890229003162, 33.73081694953842, 0, 109.097528, 34.1095, 0,
-          108.949322, 34.130466, 0.0,
-        ]),
-        width: 2,
-        material: new PolylineTrailLinkMaterialProperty(
-          Cesium.Color.WHITE,
-          1000
-        ),
-      },
-    })
+    // viewer.entities.add({
+    //   name: 'PolylineTrail',
+    //   polyline: {
+    //     positions: Cesium.Cartesian3.fromDegreesArrayHeights([
+    //       108.15890229003162, 33.73081694953842, 0, 109.097528, 34.1095, 0,
+    //       108.949322, 34.130466, 0.0,
+    //     ]),
+    //     width: 2,
+    //     material: new PolylineTrailLinkMaterialProperty(
+    //       Cesium.Color.WHITE,
+    //       1000
+    //     ),
+    //   },
+    // })
   }
 }
 
