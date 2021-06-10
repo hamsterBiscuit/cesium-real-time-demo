@@ -33,6 +33,7 @@ export const initCesium = (): Ref<Cesium.Viewer> | Ref<undefined> => {
 
   const terrainLayer = new Cesium.CesiumTerrainProvider({
     url: 'http://172.16.100.12:8099/terrain/19cc337048dc11ebafd0f786c760ef9f',
+    // url: 'http://192.168.10.62:8999/terrain/1111',
     requestVertexNormals: true, // 请求照明
     requestWaterMask: true, // 请求水波纹效果
   })
@@ -103,12 +104,9 @@ export const renderEntity = (
     },
     billboard: {
       image: current.image,
-      // pixelOffset: new Cesium.Cartesian2(0, -50), // default: (0, 0)
       eyeOffset: new Cesium.Cartesian3(0.0, 0.0, 0.0), // default
       horizontalOrigin: Cesium.HorizontalOrigin.CENTER, // default
-      // verticalOrigin: Cesium.VerticalOrigin.BOTTOM, // default: CENTER
       scale: current.imageScale, // default: 1.0
-      // color: Cesium.Color.LIME, // default: WHITE
       rotation: current.modeloffsetHeading ? -Cesium.Math.PI_OVER_TWO : 0.0, // default: 0.0
       alignedAxis: Cesium.Cartesian3.ZERO, // default
     },

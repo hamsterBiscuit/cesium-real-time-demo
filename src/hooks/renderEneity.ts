@@ -2,6 +2,7 @@ import * as Cesium from 'cesium'
 import { calcScanPoints } from './radar'
 import { EffectList } from './interface'
 import { PolylineTrailLinkMaterialProperty } from '../material/trailLink'
+import { moveTc } from './moveTc'
 
 // 绘制火控雷达
 export const renderAimEffect = (
@@ -30,64 +31,71 @@ export const renderAimEffect = (
     }
     return { currentPosition, destPosition }
   }
+  const currentEntity = viewer.entities.getById(currentId)
+  moveTc(currentEntity, destEntity, current, viewer)
   // 画线 火控雷达
-  viewer.entities.add({
-    id: current.id + currentId,
-    name: current.id,
-    show: false,
-    position: new Cesium.CallbackProperty((time: any) => {
-      const { currentPosition, destPosition } = getPosition(time)
-      if (destPosition && currentPosition) {
-        return Cesium.Cartesian3.midpoint(
-          destPosition as Cesium.Cartesian3,
-          currentPosition,
-          new Cesium.Cartesian3()
-        )
-      } else {
-        return new Cesium.Cartesian3()
-      }
-    }, false),
-    orientation: new Cesium.CallbackProperty((time: any) => {
-      const { currentPosition, destPosition } = getPosition(time)
-      if (destPosition && currentPosition) {
-        const velocityResult = new Cesium.Cartesian3()
-        const velocity = Cesium.Cartesian3.subtract(
-          destPosition as Cesium.Cartesian3,
-          currentPosition,
-          velocityResult
-        )
-        const value = Cesium.Cartesian3.normalize(velocity, velocityResult)
+  // viewer.entities.add({
+  //   id: current.id + currentId,
+  //   name: current.id,
+  //   show: false,
+  //   position: new Cesium.CallbackProperty((time: any) => {
+  //     const { currentPosition, destPosition } = getPosition(time)
+  //     if (destPosition && currentPosition) {
+  //       return Cesium.Cartesian3.midpoint(
+  //         destPosition as Cesium.Cartesian3,
+  //         currentPosition,
+  //         new Cesium.Cartesian3()
+  //       )
+  //     } else {
+  //       return new Cesium.Cartesian3()
+  //     }
+  //   }, false),
+  //   orientation: new Cesium.CallbackProperty((time: any) => {
+  //     const { currentPosition, destPosition } = getPosition(time)
+  //     if (destPosition && currentPosition) {
+  //       const velocityResult = new Cesium.Cartesian3()
+  //       const velocity = Cesium.Cartesian3.subtract(
+  //         destPosition as Cesium.Cartesian3,
+  //         currentPosition,
+  //         velocityResult
+  //       )
+  //       Cesium.Cartesian3.normalize(velocity, velocityResult)
 
-        const rotationScratch =
-          Cesium.Transforms.rotationMatrixFromPositionVelocity(
-            currentPosition,
-            value
-          )
-        const quaternion = Cesium.Quaternion.fromRotationMatrix(rotationScratch)
-        const hpr = Cesium.HeadingPitchRoll.fromQuaternion(quaternion)
-        hpr.pitch = hpr.pitch + Cesium.Math.toRadians(75)
-        return Cesium.Quaternion.fromHeadingPitchRoll(hpr)
-      } else {
-        return new Cesium.Quaternion()
-      }
-    }, false),
-    cylinder: {
-      length: new Cesium.CallbackProperty((time: any) => {
-        const { currentPosition, destPosition } = getPosition(time)
-        if (destPosition && currentPosition) {
-          return Cesium.Cartesian3.distance(
-            destPosition as Cesium.Cartesian3,
-            currentPosition
-          )
-        } else {
-          return 0
-        }
-      }, false),
-      topRadius: 0.0,
-      bottomRadius: 1000.0,
-      material: Cesium.Color.RED.withAlpha(0.5),
-    },
-  })
+  //       const rotationScratch =
+  //         Cesium.Transforms.rotationMatrixFromPositionVelocity(
+  //           currentPosition,
+  //           velocityResult
+  //         )
+  //       const quaternion = Cesium.Quaternion.fromRotationMatrix(rotationScratch)
+  //       const hpr = Cesium.HeadingPitchRoll.fromQuaternion(quaternion)
+  //       hpr.pitch = hpr.pitch + Cesium.Math.toRadians(240)
+  //       // hpr.pitch = hpr.pitch + 3.14 / 2 + 3.14
+  //       return Cesium.Transforms.headingPitchRollQuaternion(
+  //         currentPosition,
+  //         hpr
+  //       )
+  //       // return Cesium.Quaternion.fromHeadingPitchRoll(hpr)
+  //     } else {
+  //       return new Cesium.Quaternion()
+  //     }
+  //   }, false),
+  //   cylinder: {
+  //     length: new Cesium.CallbackProperty((time: any) => {
+  //       const { currentPosition, destPosition } = getPosition(time)
+  //       if (destPosition && currentPosition) {
+  //         return Cesium.Cartesian3.distance(
+  //           destPosition as Cesium.Cartesian3,
+  //           currentPosition
+  //         )
+  //       } else {
+  //         return 0
+  //       }
+  //     }, false),
+  //     topRadius: 0.0,
+  //     bottomRadius: 1000.0,
+  //     material: Cesium.Color.RED.withAlpha(0.5),
+  //   },
+  // })
 }
 
 // 预警机雷达扇片

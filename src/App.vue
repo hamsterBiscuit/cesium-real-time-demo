@@ -23,6 +23,7 @@
     renderEntity,
   } from './hooks/cesium'
   import { changeCameraHeight, clickCesium } from './hooks/cesiumEvent'
+  import { toggleEntities } from './hooks/moveTc'
 
   import { useLoadSceneDeply, useLoadEntity } from './hooks/loadData'
 
@@ -49,18 +50,23 @@
             const currentTime = viewer.value.clock.currentTime.clone()
             // 对比时间
             if (Cesium.JulianDate.equalsEpsilon(time, currentTime, 1)) {
-              const entity = viewer.value.entities.getById(
-                i.parameters?.strEffectID + i.parameters?.strEntityID
-              )
+              // const entity = viewer.value.entities.getById(
+              //   i.parameters?.strEffectID + i.parameters?.strEntityID
+              // )
+              const key = i.parameters?.strEffectID + i.parameters?.strEntityID
               // 扫描雷达
               const scanEntity = viewer.value.entities.getById(
                 i.parameters?.strEntityID
               )
-              if (entity) {
-                entity.show = i.parameters?.visible
-                if (!scanEntity && !scanEntity.ellipsoid) return
-                scanEntity.ellipsoid.show = !i.parameters?.visible
-              }
+              // if (i.parameters?.visible) {
+              //   entity.show = i.parameters?.visible
+              // } else {
+
+              // }
+              toggleEntities(key, i.parameters?.visible)
+
+              if (!scanEntity || !scanEntity.ellipsoid) return
+              scanEntity.ellipsoid.show = !i.parameters?.visible
             }
           }
           if (i.parameters?.strEffectID?.includes('dynnamicLineEffect')) {
@@ -94,6 +100,11 @@
         31.93440949179516,
         256158.7686010595
       ),
+      // destination: Cesium.Cartesian3.fromDegrees(
+      //   117.1223,
+      //   36.3006,
+      //   256158.7686010595
+      // ),
       orientation: {
         heading: Cesium.Math.toRadians(357.0625550729448),
         pitch: Cesium.Math.toRadians(-53.70659864617062),
