@@ -2,7 +2,6 @@ import * as Cesium from 'cesium'
 import { calcScanPoints } from './radar'
 import { EffectList } from './interface'
 import { PolylineTrailLinkMaterialProperty } from '../material/trailLink'
-import { moveTc } from './moveTc'
 
 // 绘制火控雷达
 export const renderAimEffect = (
@@ -32,70 +31,63 @@ export const renderAimEffect = (
     return { currentPosition, destPosition }
   }
   const currentEntity = viewer.entities.getById(currentId)
-  moveTc(currentEntity, destEntity, current, viewer)
   // 画线 火控雷达
-  // viewer.entities.add({
-  //   id: current.id + currentId,
-  //   name: current.id,
-  //   show: false,
-  //   position: new Cesium.CallbackProperty((time: any) => {
-  //     const { currentPosition, destPosition } = getPosition(time)
-  //     if (destPosition && currentPosition) {
-  //       return Cesium.Cartesian3.midpoint(
-  //         destPosition as Cesium.Cartesian3,
-  //         currentPosition,
-  //         new Cesium.Cartesian3()
-  //       )
-  //     } else {
-  //       return new Cesium.Cartesian3()
-  //     }
-  //   }, false),
-  //   orientation: new Cesium.CallbackProperty((time: any) => {
-  //     const { currentPosition, destPosition } = getPosition(time)
-  //     if (destPosition && currentPosition) {
-  //       const velocityResult = new Cesium.Cartesian3()
-  //       const velocity = Cesium.Cartesian3.subtract(
-  //         destPosition as Cesium.Cartesian3,
-  //         currentPosition,
-  //         velocityResult
-  //       )
-  //       Cesium.Cartesian3.normalize(velocity, velocityResult)
+  viewer.entities.add({
+    id: current.id + currentId,
+    name: current.id,
+    show: false,
+    position: new Cesium.CallbackProperty((time: any) => {
+      const { currentPosition, destPosition } = getPosition(time)
+      if (destPosition && currentPosition) {
+        return Cesium.Cartesian3.midpoint(
+          destPosition as Cesium.Cartesian3,
+          currentPosition,
+          new Cesium.Cartesian3()
+        )
+      } else {
+        return new Cesium.Cartesian3()
+      }
+    }, false),
+    orientation: new Cesium.CallbackProperty((time: any) => {
+      const { currentPosition, destPosition } = getPosition(time)
+      if (destPosition && currentPosition) {
+        // const velocityResult = new Cesium.Cartesian3()
+        const velocity = Cesium.Cartesian3.subtract(
+          currentPosition,
+          destPosition as Cesium.Cartesian3,
+          new Cesium.Cartesian3()
+        )
+        Cesium.Cartesian3.normalize(velocity, velocity)
 
-  //       const rotationScratch =
-  //         Cesium.Transforms.rotationMatrixFromPositionVelocity(
-  //           currentPosition,
-  //           velocityResult
-  //         )
-  //       const quaternion = Cesium.Quaternion.fromRotationMatrix(rotationScratch)
-  //       const hpr = Cesium.HeadingPitchRoll.fromQuaternion(quaternion)
-  //       hpr.pitch = hpr.pitch + Cesium.Math.toRadians(240)
-  //       // hpr.pitch = hpr.pitch + 3.14 / 2 + 3.14
-  //       return Cesium.Transforms.headingPitchRollQuaternion(
-  //         currentPosition,
-  //         hpr
-  //       )
-  //       // return Cesium.Quaternion.fromHeadingPitchRoll(hpr)
-  //     } else {
-  //       return new Cesium.Quaternion()
-  //     }
-  //   }, false),
-  //   cylinder: {
-  //     length: new Cesium.CallbackProperty((time: any) => {
-  //       const { currentPosition, destPosition } = getPosition(time)
-  //       if (destPosition && currentPosition) {
-  //         return Cesium.Cartesian3.distance(
-  //           destPosition as Cesium.Cartesian3,
-  //           currentPosition
-  //         )
-  //       } else {
-  //         return 0
-  //       }
-  //     }, false),
-  //     topRadius: 0.0,
-  //     bottomRadius: 1000.0,
-  //     material: Cesium.Color.RED.withAlpha(0.5),
-  //   },
-  // })
+        const rotationMatrix =
+          Cesium.Transforms.rotationMatrixFromPositionVelocity(
+            currentPosition,
+            velocity
+          )
+        const rot90 = Cesium.Matrix3.fromRotationY(Cesium.Math.toRadians(90))
+        Cesium.Matrix3.multiply(rotationMatrix, rot90, rotationMatrix)
+        return Cesium.Quaternion.fromRotationMatrix(rotationMatrix)
+      } else {
+        return new Cesium.Quaternion()
+      }
+    }, false),
+    cylinder: {
+      length: new Cesium.CallbackProperty((time: any) => {
+        const { currentPosition, destPosition } = getPosition(time)
+        if (destPosition && currentPosition) {
+          return Cesium.Cartesian3.distance(
+            destPosition as Cesium.Cartesian3,
+            currentPosition
+          )
+        } else {
+          return 0
+        }
+      }, false),
+      topRadius: 0.0,
+      bottomRadius: 1000.0,
+      material: Cesium.Color.RED.withAlpha(0.5),
+    },
+  })
 }
 
 // 预警机雷达扇片
@@ -208,4 +200,61 @@ export function renderDynnamicLine(
       material: new PolylineTrailLinkMaterialProperty(Cesium.Color.WHITE, 1000),
     },
   })
+}
+
+export function fire(viewer: Cesium.Viewer): void {
+  const staticPosition = Cesium.Cartesian3.fromDegrees(
+    107.222932,
+    33.394693,
+    1327.797604
+  )
+  const entity44 = viewer.entities.add({
+    position: staticPosition,
+  })
+
+  function computeModelMatrix(entity: Cesium.Entity) {
+    const modelMatrix = Cesium.Transforms.eastNorthUpToFixedFrame(
+      entity.position._value
+    )
+    console.log(modelMatrix)
+    return modelMatrix
+  }
+
+  function computeEmitterModelMatrix() {
+    const hpr = Cesium.HeadingPitchRoll.fromDegrees(0, 0, 0)
+    const trs = new Cesium.TranslationRotationScale()
+    trs.translation = Cesium.Cartesian3.fromElements(2.5, 4, 1)
+    trs.rotation = Cesium.Quaternion.fromHeadingPitchRoll(hpr)
+    const result = Cesium.Matrix4.fromTranslationRotationScale(trs)
+    return result
+  }
+
+  viewer.scene.primitives.add(
+    new Cesium.ParticleSystem({
+      image: 'img/smoke.png',
+      startColor: Cesium.Color.RED.withAlpha(0.7),
+      endColor: Cesium.Color.YELLOW.withAlpha(0.0),
+      startScale: 0,
+      endScale: 4,
+      //设定粒子寿命可能持续时间的最小限值(以秒为单位)，在此限值之上将随机选择粒子的实际寿命。
+      minimumSpeed: 1,
+      maximumSpeed: 2,
+      particleLife: 2.0,
+      imageSize: new Cesium.Cartesian2(55, 55),
+      // Particles per second.
+      // emissionRate: 4,
+      speed: 100.0,
+      lifetime: 2.0,
+      //cesium内置的发射器，圆形发射器，因此参数是一个半径值
+      //还有锥形发射器，new Cesium.ConeEmitter(Cesium.Math.toRadians(45.0))
+      //长方形发射器，new Cesium.BoxEmitter(new Cesium.Cartesian3(1.0, 1.0, 1.0))
+      //半球发射器，new Cesium.SphereEmitter(0.5)
+      emissionRate: 2,
+      emitter: new Cesium.BoxEmitter(new Cesium.Cartesian3(1.0, 1.0, 1.0)), // new Cesium.CircleEmitter(0.1),
+      //将粒子系统从模型转换为世界坐标的4x4变换矩阵
+      modelMatrix: computeModelMatrix(entity44),
+      //在粒子系统局部坐标系中变换粒子系统发射器的4x4变换矩阵
+      emitterModelMatrix: computeEmitterModelMatrix(),
+    })
+  )
 }

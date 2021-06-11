@@ -1,6 +1,7 @@
 import { ref, onMounted, nextTick } from 'vue'
 import type { Ref } from 'vue'
 import * as Cesium from 'cesium'
+// import xx from 'cesium/Source/'
 import {
   renderAimEffect,
   renderEarlyWarningAircraftRadar,
@@ -18,11 +19,10 @@ export const initCesium = (): Ref<Cesium.Viewer> | Ref<undefined> => {
   // http://172.16.100.16:8055/geoserver/gwc/service/wmts?tilematrix=3&layer=uav_amap%3Aggdt&style=default&tilerow=3&tilecol=6&tilematrixset=EPSG%3A4326&format=image%2Fpng&service=WMTS&version=1.0.0&request=GetTile
   //172.16.100.16:8055/geoserver/gwc/service/wmts?layer=uav_amap%3Aggdt&style=&tilematrixset=EPSG%3A4326&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image%2Fpng&TileMatrix=EPSG%3A4326%3A6&TileCol=107&TileRow=14
   // http:
-  const url =
-    'http://172.16.100.16:8055/geoserver/gwc/service/wmts?layer=uav_amap:ggdt&style={style}&tilematrixset={TileMatrixSet}&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image%2Fpng&TileMatrix={TileMatrix}&TileCol={TileCol}&TileRow={TileRow}'
-  // var url =
-  //   "http://192.168.10.55:7780/l6/{TileMatrix}/{TileCol}/{TileRow}.png";
-
+  // const url =
+  //   'http://172.16.100.16:8055/geoserver/gwc/service/wmts?layer=uav_amap:ggdt&style={style}&tilematrixset={TileMatrixSet}&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image%2Fpng&TileMatrix={TileMatrix}&TileCol={TileCol}&TileRow={TileRow}'
+  const url = 'http://wxdt.xsgz.com/{TileMatrix}/{TileCol}/{TileRow}.jpg'
+  // const url = 'http://city.xsgz.com/{TileMatrix}/{TileCol}/{TileRow}.png'
   const shadedRelief1 = new Cesium.WebMapTileServiceImageryProvider({
     url: url, //"http://172.16.100.16:8055/geoserver/gwc/service/wmts",
     layer: 'uav_amap:ggdt',
@@ -148,26 +148,26 @@ export const renderEntity = (
 
       // 航迹 暂时去掉
       // eslint-disable-next-line no-constant-condition
-      if (!current.id.includes('Missile') && false) {
-        entity.availability = new Cesium.TimeIntervalCollection([
-          new Cesium.TimeInterval({
-            start: Cesium.JulianDate.fromDate(new Date(res.path[0].time)),
-            stop: Cesium.JulianDate.fromDate(
-              new Date(res.path[res.path.length - 1].time)
-            ),
-          }),
-        ])
-        entity.path = {
-          resolution: new Cesium.ConstantProperty(1),
-          leadTime: new Cesium.ConstantProperty(0),
-          material: new Cesium.PolylineGlowMaterialProperty({
-            glowPower: 0.3,
-            taperPower: 0.3,
-            color: Cesium.Color.LIGHTBLUE.withAlpha(0.5),
-          }),
-          width: new Cesium.ConstantProperty(10),
-        }
-      }
+      // if (!current.id.includes('Missile') && false) {
+      //   entity.availability = new Cesium.TimeIntervalCollection([
+      //     new Cesium.TimeInterval({
+      //       start: Cesium.JulianDate.fromDate(new Date(res.path[0].time)),
+      //       stop: Cesium.JulianDate.fromDate(
+      //         new Date(res.path[res.path.length - 1].time)
+      //       ),
+      //     }),
+      //   ])
+      //   entity.path = {
+      //     resolution: new Cesium.ConstantProperty(1),
+      //     leadTime: new Cesium.ConstantProperty(0),
+      //     material: new Cesium.PolylineGlowMaterialProperty({
+      //       glowPower: 0.3,
+      //       taperPower: 0.3,
+      //       color: Cesium.Color.LIGHTBLUE.withAlpha(0.5),
+      //     }),
+      //     width: new Cesium.ConstantProperty(10),
+      //   }
+      // }
       // 预警雷达
       if (!current.id.includes('Missile')) {
         entity.ellipsoid = {

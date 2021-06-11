@@ -23,11 +23,8 @@
     renderEntity,
   } from './hooks/cesium'
   import { changeCameraHeight, clickCesium } from './hooks/cesiumEvent'
-  import { toggleEntities } from './hooks/moveTc'
-
   import { useLoadSceneDeply, useLoadEntity } from './hooks/loadData'
-
-  // const Cesium = (window as any).Cesium
+  import { fire } from './hooks/renderEneity'
 
   const viewer = initCesium()
   const data = useLoadSceneDeply()
@@ -50,23 +47,22 @@
             const currentTime = viewer.value.clock.currentTime.clone()
             // 对比时间
             if (Cesium.JulianDate.equalsEpsilon(time, currentTime, 1)) {
-              // const entity = viewer.value.entities.getById(
-              //   i.parameters?.strEffectID + i.parameters?.strEntityID
-              // )
+              const entity = viewer.value.entities.getById(
+                i.parameters?.strEffectID + i.parameters?.strEntityID
+              )
               const key = i.parameters?.strEffectID + i.parameters?.strEntityID
               // 扫描雷达
               const scanEntity = viewer.value.entities.getById(
                 i.parameters?.strEntityID
               )
-              // if (i.parameters?.visible) {
-              //   entity.show = i.parameters?.visible
-              // } else {
-
-              // }
-              toggleEntities(key, i.parameters?.visible)
+              if (entity) {
+                entity.show = i.parameters?.visible
+              }
 
               if (!scanEntity || !scanEntity.ellipsoid) return
-              scanEntity.ellipsoid.show = !i.parameters?.visible
+              scanEntity.ellipsoid.show = new Cesium.ConstantProperty(
+                !i.parameters?.visible
+              )
             }
           }
           if (i.parameters?.strEffectID?.includes('dynnamicLineEffect')) {
@@ -100,11 +96,6 @@
         31.93440949179516,
         256158.7686010595
       ),
-      // destination: Cesium.Cartesian3.fromDegrees(
-      //   117.1223,
-      //   36.3006,
-      //   256158.7686010595
-      // ),
       orientation: {
         heading: Cesium.Math.toRadians(357.0625550729448),
         pitch: Cesium.Math.toRadians(-53.70659864617062),
@@ -116,14 +107,7 @@
     if (!viewer.value) return
     clickCesium(viewer)
     changeCameraHeight(viewer)
-    // const j20 = viewer.value.entities.add({
-    //   name: 'j20',
-    //   position: Cesium.Cartesian3.fromDegrees(
-    //     126.3252296364248,
-    //     51.856054618724656,
-    //     10000
-    //   ),
-    //   model: {
+    fire(viewer.value)
     // uri: 'public/model/j20.gltf', // 歼20
     // uri: 'public/model/BD1H.gltf', // 卫星1
     // uri: 'public/model/czld.gltf', // 雷达车
@@ -134,17 +118,6 @@
     // uri: 'public/model/KJ2000.glb', // 巡航机
     // uri: 'public/model/missile.glb', // 导弹
     // uri: 'public/models/J15.glb', // 导弹
-    // minimumPixelSize: 128,
-    //   },
-    // })
-
-    // viewer.value.camera.flyTo({
-    //   destination: Cesium.Cartesian3.fromDegrees(
-    //     126.3252296364248,
-    //     51.856054618724656,
-    //     100000
-    //   ),
-    // })
   })
 
   const play = () => {
@@ -165,14 +138,14 @@
     const current = viewer.value.clock.currentTime.clone()
     const result = new Cesium.JulianDate()
     Cesium.JulianDate.addSeconds(current, 5, result)
-    setCurrentTime(viewer.value, result)
+    setCurrentTime(viewer.value, result.toString())
   }
   const back = () => {
     if (!viewer.value) return
     const current = viewer.value.clock.currentTime.clone()
     const result = new Cesium.JulianDate()
     Cesium.JulianDate.addSeconds(current, -5, result)
-    setCurrentTime(viewer.value, result)
+    setCurrentTime(viewer.value, result.toString())
   }
   const resetCamera = () => {
     if (!viewer.value) return
