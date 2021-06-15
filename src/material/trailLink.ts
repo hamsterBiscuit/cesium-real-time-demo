@@ -1,3 +1,5 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
 import * as Cesium from 'cesium'
 ;(window as any).CESIUM_BASE_URL = '/Cesium'
 
@@ -26,9 +28,7 @@ Object.defineProperties(PolylineTrailLinkMaterialProperty.prototype, {
   },
   color: Cesium.createPropertyDescriptor('color'),
 })
-PolylineTrailLinkMaterialProperty.prototype.getType = function (
-  time: Cesium.JulianDate
-) {
+PolylineTrailLinkMaterialProperty.prototype.getType = function () {
   return 'PolylineTrailLink'
 }
 PolylineTrailLinkMaterialProperty.prototype.getValue = function (
@@ -81,7 +81,7 @@ Cesium.Material._materialCache.addMaterial(
       },
       source: Cesium.Material.PolylineTrailLinkSource,
     },
-    translucent: function (material: any) {
+    translucent: function () {
       return true
     },
   }

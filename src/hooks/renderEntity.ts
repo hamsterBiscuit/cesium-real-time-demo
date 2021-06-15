@@ -30,7 +30,6 @@ export const renderAimEffect = (
     }
     return { currentPosition, destPosition }
   }
-  const currentEntity = viewer.entities.getById(currentId)
   // 画线 火控雷达
   viewer.entities.add({
     id: current.id + currentId,
@@ -47,7 +46,7 @@ export const renderAimEffect = (
       } else {
         return new Cesium.Cartesian3()
       }
-    }, false),
+    }, false) as any,
     orientation: new Cesium.CallbackProperty((time: any) => {
       const { currentPosition, destPosition } = getPosition(time)
       if (destPosition && currentPosition) {
@@ -108,8 +107,7 @@ function renderRadarScanner(
         const result = calcScanPoints(
           position,
           materialData.bottomRadius || 0,
-          heading,
-          materialData.radarHeight || 0
+          heading
         )
         return Cesium.Cartesian3.fromDegreesArrayHeights(result)
       }, false),
@@ -175,7 +173,7 @@ export function renderDynnamicLine(
     name: current.id,
     show: false,
     polyline: {
-      positions: new Cesium.CallbackProperty((time: Cesium.JulianDate) => {
+      positions: new Cesium.CallbackProperty((time) => {
         if (!currentEntity.show) {
           return Cesium.Cartesian3.fromDegreesArrayHeights(
             current.positions.flat()
@@ -183,12 +181,6 @@ export function renderDynnamicLine(
         }
         const { currentPosition, destPosition } = getPosition(time)
         if (currentPosition && destPosition) {
-          const currentDegrees = Cesium.Cartographic.fromCartesian(
-            currentPosition as Cesium.Cartesian3
-          )
-          const destDegrees = Cesium.Cartographic.fromCartesian(
-            destPosition as Cesium.Cartesian3
-          )
           return [currentPosition, destPosition]
         } else {
           return Cesium.Cartesian3.fromDegreesArrayHeights(
@@ -197,7 +189,10 @@ export function renderDynnamicLine(
         }
       }, false),
       width: 2,
-      material: new PolylineTrailLinkMaterialProperty(Cesium.Color.WHITE, 1000),
+      material: new (PolylineTrailLinkMaterialProperty as any)(
+        Cesium.Color.WHITE,
+        1000
+      ),
     },
   })
 }
@@ -214,7 +209,7 @@ export function fire(viewer: Cesium.Viewer): void {
 
   function computeModelMatrix(entity: Cesium.Entity) {
     const modelMatrix = Cesium.Transforms.eastNorthUpToFixedFrame(
-      entity.position._value
+      (entity.position as any)?._value
     )
     console.log(modelMatrix)
     return modelMatrix

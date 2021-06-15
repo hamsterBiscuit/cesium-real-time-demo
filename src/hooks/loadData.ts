@@ -2,8 +2,9 @@ import { ref } from 'vue'
 import type { Ref } from 'vue'
 import type { SceneDeploy, Entity } from './interface'
 
-export function loadData<T>(url: string): Promise<T> {
-  return fetch(url).then((response) => response.json())
+export async function loadData<T>(url: string): Promise<T> {
+  const json = await fetch(url).then((response) => response.json())
+  return json
 }
 
 export function useLoadData<T>(url: string): Ref<T | undefined> {

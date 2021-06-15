@@ -31,7 +31,7 @@ export const changeCameraHeight = (viewer: Ref<Cesium.Viewer>): void => {
 // 左键点击事件
 export const clickCesium = (viewer: Ref<Cesium.Viewer>): void => {
   viewer.value.screenSpaceEventHandler.setInputAction((movement) => {
-    const pickedLabel = viewer.value.scene.pick(movement.position)
+    // const pickedLabel = viewer.value.scene.pick(movement.position)
     const cartesian = viewer.value.camera.pickEllipsoid(
       movement.position,
       viewer.value.scene.globe.ellipsoid

@@ -24,7 +24,7 @@
   } from './hooks/cesium'
   import { changeCameraHeight, clickCesium } from './hooks/cesiumEvent'
   import { useLoadSceneDeply, useLoadEntity } from './hooks/loadData'
-  import { fire } from './hooks/renderEneity'
+  // import { fire } from './hooks/renderEneity'
 
   const viewer = initCesium()
   const data = useLoadSceneDeply()
@@ -107,7 +107,7 @@
     if (!viewer.value) return
     clickCesium(viewer)
     changeCameraHeight(viewer)
-    fire(viewer.value)
+    // fire(viewer.value)
     // uri: 'public/model/j20.gltf', // 歼20
     // uri: 'public/model/BD1H.gltf', // 卫星1
     // uri: 'public/model/czld.gltf', // 雷达车

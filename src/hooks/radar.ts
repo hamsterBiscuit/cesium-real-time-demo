@@ -70,8 +70,7 @@ export function calcPoints(
 export function calcScanPoints(
   position: Cesium.Cartesian3,
   radius: number,
-  heading: number,
-  height: number
+  heading: number
 ): number[] {
   const positionArr = []
   const m = Cesium.Transforms.eastNorthUpToFixedFrame(position)
@@ -97,18 +96,6 @@ export function calcScanPoints(
   const h2 = Cesium.Math.toDegrees(c2.height)
   positionArr.push(x2, y2, h2)
 
-  const translation2 = Cesium.Cartesian3.fromElements(rx, ry, 0)
-  const d3 = Cesium.Matrix4.multiplyByPoint(
-    m,
-    translation2,
-    new Cesium.Cartesian3()
-  )
-  const c3 = Cesium.Cartographic.fromCartesian(d3)
-
-  const x3 = Cesium.Math.toDegrees(c3.longitude)
-  const y3 = Cesium.Math.toDegrees(c3.latitude)
-  const h3 = Cesium.Math.toDegrees(c3.height)
-  // positionArr.push(x3, y3, h3)
   return positionArr
 }
 

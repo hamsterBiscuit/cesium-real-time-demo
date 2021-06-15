@@ -6,7 +6,7 @@ import {
   renderAimEffect,
   renderEarlyWarningAircraftRadar,
   renderDynnamicLine,
-} from './renderEneity'
+} from './renderEntity'
 import { calcPoints } from './radar'
 import '../../node_modules/cesium/Build/Cesium/Widgets/widgets.css'
 
@@ -137,9 +137,7 @@ export const renderEntity = (
         const time = Cesium.JulianDate.fromDate(new Date(i.time))
         const orientation = orientationProperty.getValue(time)
         if (!orientation) return
-        const o = Cesium.HeadingPitchRoll.fromQuaternion(orientation)
 
-        const q = Cesium.Quaternion.fromHeadingPitchRoll(o)
         modelOrientationProperty.addSample(time, orientation)
       })
       // 3D model
@@ -187,7 +185,6 @@ export const renderEntity = (
       current.effectList?.forEach((i) => {
         if (i.id.includes('Radar')) {
           // 雷达-预警机
-          const materialData = i
           renderEarlyWarningAircraftRadar(viewer, entity, i)
         }
       })
@@ -236,7 +233,7 @@ export const renderEntity = (
       heading,
       materialData.parabolaHeight
     )
-    const entity = viewer.entities.add({
+    viewer.entities.add({
       wall: {
         positions: new Cesium.CallbackProperty(() => {
           return Cesium.Cartesian3.fromDegreesArrayHeights(positionArr)
@@ -275,59 +272,5 @@ export const renderEntity = (
         materialData.parabolaHeight
       )
     })
-    // Add a polyline tube
-    // viewer.entities.add({
-    //   name: 'PolylineTrail',
-    //   polyline: {
-    //     positions: Cesium.Cartesian3.fromDegreesArrayHeights([
-    //       108.15890229003162, 33.73081694953842, 0, 109.097528, 34.1095, 0,
-    //       108.949322, 34.130466, 0.0,
-    //     ]),
-    //     width: 2,
-    //     material: new PolylineTrailLinkMaterialProperty(
-    //       Cesium.Color.WHITE,
-    //       1000
-    //     ),
-    //   },
-    // })
   }
 }
-
-// 第一人称
-// export const firstCamera = (viewer: Cesium.Viewer, entityId) => {
-//   viewer.scene.postUpdate.addEventListener((__, time) => {
-//     entityList.forEach((entity, index) => {
-//       const orientation = entity.orientation.getValue(time)
-//       const headingPitchRoll = new Cesium.HeadingPitchRoll()
-//       Cesium.HeadingPitchRoll.fromQuaternion(orientation, headingPitchRoll)
-//       const position = entity.position.getValue(time)
-//       const degrees = cartesianToDegrees(position)
-//       entity.label.text = `${
-//         entity.name
-//       }\nlongitude:${degrees.longitude.toFixed(
-//         4
-//       )}\nlatitude:${degrees.latitude.toFixed(4)}`
-//       if (index === 0) {
-//         const transform = Cesium.Matrix4.fromRotationTranslation(
-//           Cesium.Matrix3.fromQuaternion(orientation),
-//           position
-//         )
-//         const comput = new Cesium.Cartesian3()
-//         Cesium.Cartesian3.add(
-//           position,
-//           new Cesium.Cartesian3(0.0, 0, 0),
-//           comput
-//         )
-//         const hpr = Cesium.Transforms.fixedFrameToHeadingPitchRoll(transform)
-//         viewer.camera.setView({
-//           destination: comput,
-//           orientation: {
-//             heading: hpr.heading + Cesium.Math.toRadians(90.0),
-//             roll: hpr.roll,
-//             pitch: hpr.pitch,
-//           },
-//         })
-//       }
-//     })
-//   })
-// }
