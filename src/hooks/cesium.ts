@@ -246,6 +246,14 @@ export const renderEntity = (
     viewer.entities.add({
       wall: {
         positions: new Cesium.CallbackProperty(() => {
+          heading += 2
+          positionArr = calcPoints(
+            current.position[0],
+            current.position[1],
+            materialData.parabolaRadius ?? 0,
+            heading,
+            materialData.parabolaHeight
+          )
           return Cesium.Cartesian3.fromDegreesArrayHeights(positionArr)
         }, false),
         material: Cesium.Color.fromCssColorString(materialData.scannerColor),
@@ -269,18 +277,6 @@ export const renderEntity = (
         outlineColor: Cesium.Color.AQUAMARINE.withAlpha(0.5),
         outlineWidth: 1,
       },
-    })
-
-    // 执行动画效果
-    viewer.clock.onTick.addEventListener(() => {
-      heading += 10
-      positionArr = calcPoints(
-        current.position[0],
-        current.position[1],
-        materialData.parabolaRadius ?? 0,
-        heading,
-        materialData.parabolaHeight
-      )
     })
   }
 }

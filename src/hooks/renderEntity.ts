@@ -103,7 +103,7 @@ function renderRadarScanner(
         if (!position) {
           return undefined
         }
-        heading += 8
+        heading += 4
         const result = calcScanPoints(
           position,
           materialData.bottomRadius || 0,
