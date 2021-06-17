@@ -17,14 +17,14 @@ export const changeCameraHeight = (viewer: Ref<Cesium.Viewer>): void => {
   const benchmark = 200000 // camera 基准高度
   let isHigh = true
   handler.setInputAction(() => {
-    const height = viewer.value.camera.positionCartographic.height
-    if (height > benchmark && !isHigh) {
-      isHigh = !isHigh
-      changeEntityModel(viewer, 'img')
-    } else if (height < benchmark && isHigh) {
-      isHigh = !isHigh
-      changeEntityModel(viewer, 'model')
-    }
+    // const height = viewer.value.camera.positionCartographic.height
+    // if (height > benchmark && !isHigh) {
+    //   isHigh = !isHigh
+    //   changeEntityModel(viewer, 'img')
+    // } else if (height < benchmark && isHigh) {
+    //   isHigh = !isHigh
+    //   changeEntityModel(viewer, 'model')
+    // }
   }, Cesium.ScreenSpaceEventType.WHEEL)
 }
 

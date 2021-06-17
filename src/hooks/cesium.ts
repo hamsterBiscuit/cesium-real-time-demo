@@ -100,15 +100,22 @@ export const renderEntity = (
       scale: current.scale,
       maximumScale: current.maximumScale,
       minimumPixelSize: 64,
-      show: false,
+      // show: false,
+      // silhouetteSize: 1.0,
+      distanceDisplayCondition: new Cesium.DistanceDisplayCondition(
+        0.0,
+        25000.0
+      ),
     },
     billboard: {
       image: current.image,
+      color: Cesium.Color.PINK,
       eyeOffset: new Cesium.Cartesian3(0.0, 0.0, 0.0), // default
       horizontalOrigin: Cesium.HorizontalOrigin.CENTER, // default
       scale: current.imageScale, // default: 1.0
       rotation: current.modeloffsetHeading ? -Cesium.Math.PI_OVER_TWO : 0.0, // default: 0.0
       alignedAxis: Cesium.Cartesian3.ZERO, // default
+      distanceDisplayCondition: new Cesium.DistanceDisplayCondition(25000.0),
     },
   })
   // 有时间属性
@@ -146,41 +153,44 @@ export const renderEntity = (
 
       // 航迹 暂时去掉
       // eslint-disable-next-line no-constant-condition
-      // if (!current.id.includes('Missile') && false) {
-      //   entity.availability = new Cesium.TimeIntervalCollection([
-      //     new Cesium.TimeInterval({
-      //       start: Cesium.JulianDate.fromDate(new Date(res.path[0].time)),
-      //       stop: Cesium.JulianDate.fromDate(
-      //         new Date(res.path[res.path.length - 1].time)
-      //       ),
-      //     }),
-      //   ])
-      //   entity.path = {
-      //     resolution: new Cesium.ConstantProperty(1),
-      //     leadTime: new Cesium.ConstantProperty(0),
-      //     material: new Cesium.PolylineGlowMaterialProperty({
-      //       glowPower: 0.3,
-      //       taperPower: 0.3,
-      //       color: Cesium.Color.LIGHTBLUE.withAlpha(0.5),
-      //     }),
-      //     width: new Cesium.ConstantProperty(10),
-      //   }
-      // }
-      // 预警雷达
       if (!current.id.includes('Missile')) {
-        entity.ellipsoid = {
-          radii: new Cesium.Cartesian3(30000.0, 30000.0, 30000.0),
-          innerRadii: new Cesium.Cartesian3(10.0, 10.0, 10.0),
-          minimumClock: Cesium.Math.toRadians(-10.0),
-          maximumClock: Cesium.Math.toRadians(10.0),
-          minimumCone: Cesium.Math.toRadians(80.0),
-          maximumCone: Cesium.Math.toRadians(100.0),
-          material: Cesium.Color.AQUA.withAlpha(0.3),
-          outline: true,
-          outlineColor: Cesium.Color.BLACK.withAlpha(0.3),
-          outlineWidth: 2,
-        } as any
+        const start = Cesium.JulianDate.fromDate(new Date(res.path[0].time))
+        const stop = Cesium.JulianDate.fromDate(
+          new Date(res.path[res.path.length - 1].time)
+        )
+        entity.availability = new Cesium.TimeIntervalCollection([
+          new Cesium.TimeInterval({
+            start,
+            stop,
+          }),
+        ])
+        entity.path = {
+          // resolution: new Cesium.ConstantProperty(10),
+          leadTime: new Cesium.ConstantProperty(0),
+          trailTime: new Cesium.ConstantProperty(10),
+          material: new Cesium.PolylineGlowMaterialProperty({
+            glowPower: 0.1,
+            // taperPower: 0.3,
+            color: Cesium.Color.YELLOW,
+          }),
+          width: new Cesium.ConstantProperty(3),
+        }
       }
+      // 预警雷达
+      // if (!current.id.includes('Missile')) {
+      //   entity.ellipsoid = {
+      //     radii: new Cesium.Cartesian3(30000.0, 30000.0, 30000.0),
+      //     innerRadii: new Cesium.Cartesian3(10.0, 10.0, 10.0),
+      //     minimumClock: Cesium.Math.toRadians(-10.0),
+      //     maximumClock: Cesium.Math.toRadians(10.0),
+      //     minimumCone: Cesium.Math.toRadians(80.0),
+      //     maximumCone: Cesium.Math.toRadians(100.0),
+      //     material: Cesium.Color.AQUA.withAlpha(0.3),
+      //     outline: true,
+      //     outlineColor: Cesium.Color.BLACK.withAlpha(0.3),
+      //     outlineWidth: 2,
+      //   } as any
+      // }
 
       current.effectList?.forEach((i) => {
         if (i.id.includes('Radar')) {

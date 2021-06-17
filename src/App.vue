@@ -60,9 +60,9 @@
               }
 
               if (!scanEntity || !scanEntity.ellipsoid) return
-              scanEntity.ellipsoid.show = new Cesium.ConstantProperty(
-                !i.parameters?.visible
-              )
+              // scanEntity.ellipsoid.show = new Cesium.ConstantProperty(
+              //   !i.parameters?.visible
+              // )
             }
           }
           if (i.parameters?.strEffectID?.includes('dynnamicLineEffect')) {
