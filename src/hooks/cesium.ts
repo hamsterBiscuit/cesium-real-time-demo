@@ -113,7 +113,8 @@ export const renderEntity = (
       eyeOffset: new Cesium.Cartesian3(0.0, 0.0, 0.0), // default
       horizontalOrigin: Cesium.HorizontalOrigin.CENTER, // default
       scale: current.imageScale, // default: 1.0
-      rotation: current.modeloffsetHeading ? -Cesium.Math.PI_OVER_TWO : 0.0, // default: 0.0
+      // rotation: current.modeloffsetHeading ? -Cesium.Math.PI_OVER_TWO : 0.0, // default: 0.0
+      // rotation: -Cesium.Math.PI_OVER_TWO,
       alignedAxis: Cesium.Cartesian3.ZERO, // default
       distanceDisplayCondition: new Cesium.DistanceDisplayCondition(25000.0),
     },
@@ -150,6 +151,11 @@ export const renderEntity = (
       // 3D model
       entity.position = property
       entity.orientation = modelOrientationProperty
+      if (entity.billboard) {
+        entity.billboard.alignedAxis = new Cesium.VelocityVectorProperty(
+          property
+        )
+      }
 
       // 航迹 暂时去掉
       // eslint-disable-next-line no-constant-condition
