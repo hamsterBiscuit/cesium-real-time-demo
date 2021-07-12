@@ -19,9 +19,9 @@ export const initCesium = (): Ref<Cesium.Viewer> | Ref<undefined> => {
   // http://172.16.100.16:8055/geoserver/gwc/service/wmts?tilematrix=3&layer=uav_amap%3Aggdt&style=default&tilerow=3&tilecol=6&tilematrixset=EPSG%3A4326&format=image%2Fpng&service=WMTS&version=1.0.0&request=GetTile
   //172.16.100.16:8055/geoserver/gwc/service/wmts?layer=uav_amap%3Aggdt&style=&tilematrixset=EPSG%3A4326&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image%2Fpng&TileMatrix=EPSG%3A4326%3A6&TileCol=107&TileRow=14
   // http:
-  // const url =
-  //   'http://172.16.100.16:8055/geoserver/gwc/service/wmts?layer=uav_amap:ggdt&style={style}&tilematrixset={TileMatrixSet}&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image%2Fpng&TileMatrix={TileMatrix}&TileCol={TileCol}&TileRow={TileRow}'
-  const url = 'http://wxdt.xsgz.com/{TileMatrix}/{TileCol}/{TileRow}.jpg'
+  const url =
+    'http://172.16.100.16:8055/geoserver/gwc/service/wmts?layer=uav_amap:ggdt&style={style}&tilematrixset={TileMatrixSet}&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image%2Fpng&TileMatrix={TileMatrix}&TileCol={TileCol}&TileRow={TileRow}'
+  // const url = 'http://wxdt.xsgz.com/{TileMatrix}/{TileCol}/{TileRow}.jpg'
   // const url = 'http://city.xsgz.com/{TileMatrix}/{TileCol}/{TileRow}.png'
   const shadedRelief1 = new Cesium.WebMapTileServiceImageryProvider({
     url: url, //"http://172.16.100.16:8055/geoserver/gwc/service/wmts",
@@ -141,12 +141,79 @@ export const renderEntity = (
       const modelOrientationProperty = new Cesium.SampledProperty(
         Cesium.Quaternion
       )
+      const arr = []
+      const arr2 = []
       res.path.forEach((i) => {
         const time = Cesium.JulianDate.fromDate(new Date(i.time))
         const orientation = orientationProperty.getValue(time)
+        const position = Cesium.Cartesian3.fromDegrees(
+          i.position[0],
+          i.position[1],
+          i.position[2]
+        )
         if (!orientation) return
-
         modelOrientationProperty.addSample(time, orientation)
+
+        // test
+        function createROIfromRotation(position, rotation, length) {
+          // position: Cartographic - {latitude, longitude, altitude})
+          // rotation: HeadingPitchRoll - {heading, pitch, roll}
+
+          // Based on answer found here:
+          // https://stackoverflow.com/questions/58021985/create-a-point-in-a-direction-in-cesiumjs
+
+          const cartesianPosition =
+            Cesium.Ellipsoid.WGS84.cartographicToCartesian(position)
+
+          rotation.heading = rotation.heading - Cesium.Math.toRadians(90)
+          const referenceFrame1 = Cesium.Transforms.headingPitchRollQuaternion(
+            cartesianPosition,
+            rotation
+          )
+          const rotationMatrix = Cesium.Matrix3.fromQuaternion(
+            referenceFrame1,
+            new Cesium.Matrix3()
+          )
+          const rotationScaled = Cesium.Matrix3.multiplyByVector(
+            rotationMatrix,
+            new Cesium.Cartesian3(length, 0, 0),
+            new Cesium.Cartesian3()
+          )
+          const roiPos = Cesium.Cartesian3.add(
+            cartesianPosition,
+            rotationScaled,
+            new Cesium.Cartesian3()
+          )
+          return roiPos
+        }
+        const trs = new Cesium.TranslationRotationScale(
+          new Cesium.Cartesian3(0.0, 10.0, 0.0),
+          orientation
+        )
+        const rotationMatrix = Cesium.Matrix3.fromQuaternion(orientation)
+        const rotationScaled = Cesium.Matrix3.multiplyByVector(
+          rotationMatrix,
+          new Cesium.Cartesian3(0.0, 600.0, 0.0),
+          new Cesium.Cartesian3()
+        )
+        const rotationScaled2 = Cesium.Matrix3.multiplyByVector(
+          rotationMatrix,
+          new Cesium.Cartesian3(0.0, -600.0, 0.0),
+          new Cesium.Cartesian3()
+        )
+        const roiPos = Cesium.Cartesian3.add(
+          position,
+          rotationScaled,
+          new Cesium.Cartesian3()
+        )
+        const roiPos2 = Cesium.Cartesian3.add(
+          position,
+          rotationScaled2,
+          new Cesium.Cartesian3()
+        )
+        arr.push(roiPos)
+        arr2.push(roiPos2)
+        // end
       })
       // 3D model
       entity.position = property
@@ -156,6 +223,20 @@ export const renderEntity = (
           property
         )
       }
+      viewer.entities.add({
+        polyline: {
+          positions: arr,
+          material: Cesium.Color.RED,
+          width: 1,
+        },
+      })
+      viewer.entities.add({
+        polyline: {
+          positions: arr2,
+          material: Cesium.Color.BLUE,
+          width: 1,
+        },
+      })
 
       // 航迹 暂时去掉
       // eslint-disable-next-line no-constant-condition
