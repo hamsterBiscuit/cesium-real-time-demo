@@ -141,9 +141,11 @@ export const renderEntity = (
       const modelOrientationProperty = new Cesium.SampledProperty(
         Cesium.Quaternion
       )
+      const times = []
       const arr = []
       const arr2 = []
-      res.path.forEach((i) => {
+      const arr3 = []
+      res.path.forEach((i, index) => {
         const time = Cesium.JulianDate.fromDate(new Date(i.time))
         const orientation = orientationProperty.getValue(time)
         const position = Cesium.Cartesian3.fromDegrees(
@@ -211,8 +213,11 @@ export const renderEntity = (
           rotationScaled2,
           new Cesium.Cartesian3()
         )
+        times.push(index)
         arr.push(roiPos)
         arr2.push(roiPos2)
+        arr3.push(roiPos)
+        arr3.push(roiPos2)
         // end
       })
       // 3D model
@@ -223,20 +228,50 @@ export const renderEntity = (
           property
         )
       }
-      viewer.entities.add({
-        polyline: {
-          positions: arr,
-          material: Cesium.Color.RED,
-          width: 1,
-        },
-      })
-      viewer.entities.add({
-        polyline: {
-          positions: arr2,
-          material: Cesium.Color.BLUE,
-          width: 1,
-        },
-      })
+      if (current.id === 'test12') {
+        const positions = []
+        const spline = new Cesium.CatmullRomSpline({
+          times: times,
+          points: arr,
+        })
+        const spline2 = new Cesium.CatmullRomSpline({
+          times: times,
+          points: arr2.reverse(),
+        })
+        for (let i = 0; i <= 800; i++) {
+          const c3 = spline.evaluate(i / 100)
+          console.log(i / 10)
+          positions.push(c3)
+        }
+        for (let i = 0; i <= 800; i++) {
+          const c3 = spline2.evaluate(i / 100)
+          positions.push(c3)
+        }
+        viewer.entities.add({
+          polyline: {
+            positions: arr,
+            material: Cesium.Color.RED,
+            width: 1,
+          },
+        })
+        viewer.entities.add({
+          polyline: {
+            positions: arr2,
+            material: Cesium.Color.BLUE,
+            width: 1,
+          },
+        })
+        viewer.entities.add({
+          polygon: {
+            hierarchy: positions,
+            perPositionHeight: true,
+            material: Cesium.Color.YELLOW.withAlpha(0.2),
+            width: 1,
+            // closeTop: false,
+            // closeBottom: false,
+          },
+        })
+      }
 
       // 航迹 暂时去掉
       // eslint-disable-next-line no-constant-condition
